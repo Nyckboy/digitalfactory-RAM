@@ -1,9 +1,13 @@
 package com.digitalfactory.platform.service;
 
 import com.digitalfactory.platform.dto.request.RegisterRequest;
+import com.digitalfactory.platform.dto.response.UserResponse;
 import com.digitalfactory.platform.model.User;
 import com.digitalfactory.platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,5 +36,10 @@ public class UserService {
 
         // 3. Save to the database
         return userRepository.save(newUser);
+    }
+
+    public Page<UserResponse> getAllUsers(int page, int size) {
+        return userRepository.findAll(PageRequest.of(page, size))
+                .map(UserResponse::fromEntity); // Safely converts User to UserResponse
     }
 }
