@@ -1,8 +1,8 @@
 import { RouterProvider, createBrowserRouter, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
+import { Login } from './pages/auth/Login';
 
 // Placeholder components (we will build these out later)
-const Login = () => <div className="p-10 text-xl font-bold text-center text-blue-600">Login Page (To Be Built)</div>;
 const AdminDashboard = () => <div className="p-10 text-xl font-bold">Super Admin Dashboard</div>;
 const SupervisorDashboard = () => <div className="p-10 text-xl font-bold">Supervisor Dashboard</div>;
 const InternDashboard = () => <div className="p-10 text-xl font-bold">Intern Dashboard</div>;

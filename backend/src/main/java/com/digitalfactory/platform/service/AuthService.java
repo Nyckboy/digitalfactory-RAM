@@ -1,9 +1,12 @@
 package com.digitalfactory.platform.service;
 
-import com.digitalfactory.platform.model.User;
 import com.digitalfactory.platform.repository.UserRepository;
 import com.digitalfactory.platform.security.JwtService;
 import lombok.RequiredArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -17,14 +20,20 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public String authenticate(String email, String password) {
-        // This will verify the credentials against the DB via the AuthenticationProvider
+        // Verify credentials
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
         );
         
+        // Fetch the user
         var user = repository.findByEmail(email)
-                .orElseThrow(); // Should be caught by a global exception handler in production
+                .orElseThrow(); 
                 
-        return jwtService.generateToken(user);
+        // Inject custom claims (The Role)
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", user.getRole().name());
+        
+        // Generate token WITH the extra claims
+        return jwtService.generateToken(extraClaims, user);
     }
 }
