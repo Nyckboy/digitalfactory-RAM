@@ -1,29 +1,59 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
+import { RouterProvider, createBrowserRouter, Navigate } from 'react-router-dom';
+import { ProtectedRoute } from './components/layout/ProtectedRoute';
 
-// Placeholder Pages
-// const Login = () => <div className="p-10 text-2xl">Login Page</div>;
-const AdminDashboard = () => <div className="p-10">Super Admin View: Manage Users & Projects</div>;
-const SupervisorBoard = () => <div className="p-10">Supervisor View: Review Tasks</div>;
-const InternWorkspace = () => <div className="p-10">Intern View: Submit Deliverables</div>;
+// Placeholder components (we will build these out later)
+const Login = () => <div className="p-10 text-xl font-bold text-center text-blue-600">Login Page (To Be Built)</div>;
+const AdminDashboard = () => <div className="p-10 text-xl font-bold">Super Admin Dashboard</div>;
+const SupervisorDashboard = () => <div className="p-10 text-xl font-bold">Supervisor Dashboard</div>;
+const InternDashboard = () => <div className="p-10 text-xl font-bold">Intern Dashboard</div>;
 
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/login" element={<Login />} />
+const router = createBrowserRouter([
+  // Public Route
+  {
+    path: '/login',
+    element: <Login />,
+  },
+  
+  // Protected Routes
+  {
+    element: <ProtectedRoute />, // Base protection: Must be logged in
+    children: [
+      // Base path redirects to role-specific dashboard
+      {
+        path: '/',
+        element: <Navigate to="/login" replace />, 
+      },
+      // Super Admin Routes
+      {
+        element: <ProtectedRoute allowedRoles={['SUPER_ADMIN']} />,
+        children: [
+          { path: '/admin', element: <AdminDashboard /> },
+        ],
+      },
+      // Supervisor Routes
+      {
+        element: <ProtectedRoute allowedRoles={['SUPERVISOR']} />,
+        children: [
+          { path: '/supervisor', element: <SupervisorDashboard /> },
+        ],
+      },
+      // Intern Routes
+      {
+        element: <ProtectedRoute allowedRoles={['INTERN']} />,
+        children: [
+          { path: '/intern', element: <InternDashboard /> },
+        ],
+      },
+    ],
+  },
+  
+  // Catch-all route for 404s
+  {
+    path: '*',
+    element: <div className="p-10 text-center text-red-500">404 - Page Not Found</div>,
+  }
+]);
 
-        {/* Protected Routes (To be wrapped in Auth Guard later) */}
-        <Route path="/admin/*" element={<AdminDashboard />} />
-        <Route path="/supervisor/*" element={<SupervisorBoard />} />
-        <Route path="/intern/*" element={<InternWorkspace />} />
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App;
