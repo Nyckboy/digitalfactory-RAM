@@ -30,9 +30,9 @@ public class SecurityConfig {
             .cors(cors -> cors.configure(http)) 
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Open login endpoints
-                .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
-                .requestMatchers("/api/supervisor/**").hasRole("SUPERVISOR")
-                .requestMatchers("/api/intern/**").hasRole("INTERN")
+                .requestMatchers("/api/admin/**").hasAuthority("SUPER_ADMIN")
+                .requestMatchers("/api/supervisor/**").hasAuthority("SUPERVISOR")
+                .requestMatchers("/api/intern/**").hasAuthority("INTERN")
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
