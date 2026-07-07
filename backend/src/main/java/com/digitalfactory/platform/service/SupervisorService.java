@@ -1,7 +1,9 @@
 package com.digitalfactory.platform.service;
 
 import com.digitalfactory.platform.dto.request.TaskCreateRequest;
+import com.digitalfactory.platform.dto.request.TaskUpdateRequest;
 import com.digitalfactory.platform.dto.response.ProjectResponse;
+import com.digitalfactory.platform.dto.response.TaskResponse;
 import com.digitalfactory.platform.model.Project;
 import com.digitalfactory.platform.model.Task;
 import com.digitalfactory.platform.model.User;
@@ -9,6 +11,9 @@ import com.digitalfactory.platform.repository.ProjectRepository;
 import com.digitalfactory.platform.repository.TaskRepository;
 import com.digitalfactory.platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -62,5 +67,62 @@ public class SupervisorService {
                 .build();
 
         return taskRepository.save(task);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TaskResponse> getProjectTasks(String supervisorEmail, UUID projectId, int page, int size) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+
+        // Security Check
+        if (!project.getSupervisor().getEmail().equals(supervisorEmail)) {
+            throw new SecurityException("You do not have permission to view tasks for this project");
+        }
+
+        return taskRepository.findByProjectId(projectId, PageRequest.of(page, size))
+                .map(TaskResponse::fromEntity);
+    }
+
+    @Transactional
+    public TaskResponse updateTask(String supervisorEmail, UUID taskId, TaskUpdateRequest request) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+
+        // Security Check
+        if (!task.getProject().getSupervisor().getEmail().equals(supervisorEmail)) {
+            throw new SecurityException("You do not have permission to update this task");
+        }
+
+        // Update fields if they are provided in the request
+        if (request.getTitle() != null) task.setTitle(request.getTitle());
+        if (request.getDescription() != null) task.setDescription(request.getDescription());
+        if (request.getStatus() != null) task.setStatus(request.getStatus());
+        if (request.getDeadline() != null) task.setDeadline(request.getDeadline());
+
+        // Handle reassignment safely
+        if (request.getAssignedToId() != null) {
+            User newIntern = userRepository.findById(request.getAssignedToId())
+                    .orElseThrow(() -> new IllegalArgumentException("Intern not found"));
+            
+            if (!task.getProject().getInterns().contains(newIntern)) {
+                throw new IllegalArgumentException("This intern is not assigned to the project");
+            }
+            task.setAssignedTo(newIntern);
+        }
+
+        return TaskResponse.fromEntity(taskRepository.save(task));
+    }
+
+    @Transactional
+    public void deleteTask(String supervisorEmail, UUID taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+
+        // Security Check
+        if (!task.getProject().getSupervisor().getEmail().equals(supervisorEmail)) {
+            throw new SecurityException("You do not have permission to delete this task");
+        }
+
+        taskRepository.delete(task);
     }
 }
