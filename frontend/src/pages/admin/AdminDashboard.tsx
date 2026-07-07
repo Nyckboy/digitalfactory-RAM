@@ -108,7 +108,7 @@ export const AdminDashboard = () => {
             </button>
           </div>
 
-          <div className="overflow-x-auto flex-grow">
+          <div className="overflow-x-auto grow">
             <table className="w-full text-left text-sm text-gray-600">
               <thead className="bg-gray-50 text-gray-700">
                 <tr>
@@ -207,7 +207,7 @@ export const AdminDashboard = () => {
             </button>
           </div>
 
-          <div className="overflow-x-auto flex-grow">
+          <div className="overflow-x-auto grow">
             <table className="w-full text-left text-sm text-gray-600">
               <thead className="bg-gray-50 text-gray-700">
                 <tr>
