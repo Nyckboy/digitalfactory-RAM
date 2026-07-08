@@ -61,7 +61,7 @@ export const ProjectTaskBoard = () => {
     { title: 'To Do', status: 'TODO', bgColor: 'bg-gray-100' },
     { title: 'In Progress', status: 'IN_PROGRESS', bgColor: 'bg-blue-50' },
     { title: 'In Review', status: 'IN_REVIEW', bgColor: 'bg-yellow-50' },
-    { title: 'Done', status: 'DONE', bgColor: 'bg-green-50' },
+    { title: 'COMPLETED', status: 'COMPLETED', bgColor: 'bg-green-50' },
   ];
 
   if (isLoading) return <div className="p-10 text-center text-gray-500">Loading board...</div>;
@@ -121,7 +121,7 @@ export const ProjectTaskBoard = () => {
                       <option value="TODO">To Do</option>
                       <option value="IN_PROGRESS">In Progress</option>
                       <option value="IN_REVIEW">In Review</option>
-                      <option value="DONE">Done</option>
+                      <option value="COMPLETED">COMPLETED</option>
                     </select>
                   </div>
                 </div>

@@ -29,7 +29,7 @@ export interface ProjectDTO {
   interns: UserDTO[];
 }
 
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'COMPLETED';
 
 export interface TaskDTO {
   id: string;
@@ -39,5 +39,5 @@ export interface TaskDTO {
   deadline: string;
   projectId: string;
   assignedTo: UserDTO;
-  submissionUrl?: string | null; // <-- Add this field
+  submissionUrl?: string | null; 
 }
