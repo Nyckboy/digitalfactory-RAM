@@ -16,6 +16,7 @@ public class TaskResponse {
     private String description;
     private TaskStatus status;
     private LocalDateTime deadline;
+    private String submissionUrl;
     private UUID projectId;
     private UserResponse assignedTo;
 
@@ -26,6 +27,7 @@ public class TaskResponse {
                 .description(task.getDescription())
                 .status(task.getStatus())
                 .deadline(task.getDeadline())
+                .submissionUrl(task.getSubmissionUrl())
                 .projectId(task.getProject().getId())
                 .assignedTo(UserResponse.fromEntity(task.getAssignedTo()))
                 .build();

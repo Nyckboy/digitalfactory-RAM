@@ -34,6 +34,9 @@ public class Task {
 
     private LocalDateTime deadline;
 
+    @Column(columnDefinition = "TEXT")
+    private String submissionUrl;
+
     // The project this task belongs to
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
