@@ -4,6 +4,8 @@ import type { UserDTO, ProjectDTO } from "../../types/api";
 import { useAuthStore } from "../../store/useAuthStore";
 import { RegisterUserModal } from "./RegisterUserModal";
 import { CreateProjectModal } from "./CreateProjectModal";
+import { EditUserModal } from "./EditUserModal";
+import { EditProjectModal } from "./EditProjectModal";
 
 export const AdminDashboard = () => {
   const { logout } = useAuthStore();
@@ -23,6 +25,13 @@ export const AdminDashboard = () => {
   const [projectPage, setProjectPage] = useState(0);
   const [projectTotalPages, setProjectTotalPages] = useState(1);
   const [isProjectsLoading, setIsProjectsLoading] = useState(true);
+
+  const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectDTO | null>(
+    null,
+  );
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
+  const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
 
   const PAGE_SIZE = 5;
 
@@ -53,6 +62,41 @@ export const AdminDashboard = () => {
     }
   }, []);
 
+  const handleDeleteUser = async (user: UserDTO) => {
+    if (!window.confirm(`Are you sure you want to delete ${user.firstName}?`))
+      return;
+    try {
+      await adminService.deleteUser(user.id);
+      fetchUsers(userPage); // Refresh on success
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        alert(
+          `${user.firstName} could not be hard-deleted because they have assigned tasks/projects. Their account has been set to Inactive instead.`,
+        );
+        fetchUsers(userPage); // Refresh to show the inactive status
+      } else {
+        alert("Failed to delete user.");
+      }
+    }
+  };
+
+  const handleDeleteProject = async (project: ProjectDTO) => {
+    if (!window.confirm(`Are you sure you want to delete "${project.title}"?`))
+      return;
+    try {
+      await adminService.deleteProject(project.id);
+      fetchProjects(projectPage);
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        alert(
+          `Cannot delete "${project.title}". You must delete all associated tasks first.`,
+        );
+      } else {
+        alert("Failed to delete project.");
+      }
+    }
+  };
+
   // Effect to load Users when userPage changes
   useEffect(() => {
     fetchUsers(userPage);
@@ -75,6 +119,19 @@ export const AdminDashboard = () => {
         isOpen={isProjectModalOpen}
         onClose={() => setIsProjectModalOpen(false)}
         onSuccess={() => fetchProjects(0)} // Reset to page 0 on new project
+      />
+
+      <EditUserModal
+        isOpen={isEditUserModalOpen}
+        user={selectedUser}
+        onClose={() => setIsEditUserModalOpen(false)}
+        onSuccess={() => fetchUsers(userPage)}
+      />
+      <EditProjectModal
+        isOpen={isEditProjectModalOpen}
+        project={selectedProject}
+        onClose={() => setIsEditProjectModalOpen(false)}
+        onSuccess={() => fetchProjects(projectPage)}
       />
 
       {/* Header */}
@@ -115,6 +172,7 @@ export const AdminDashboard = () => {
                   <th className="px-6 py-3 font-medium">Name</th>
                   <th className="px-6 py-3 font-medium">Role</th>
                   <th className="px-6 py-3 font-medium">Status</th>
+                  <th className="px-6 py-3 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -163,6 +221,23 @@ export const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4">
                         {user.isActive ? "Active" : "Inactive"}
+                      </td>
+                      <td className="px-6 py-4 flex gap-3 text-sm">
+                        <button
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setIsEditUserModalOpen(true);
+                          }}
+                          className="text-blue-600 hover:underline"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          className="text-red-600 hover:underline"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -214,6 +289,7 @@ export const AdminDashboard = () => {
                   <th className="px-6 py-3 font-medium">Project Title</th>
                   <th className="px-6 py-3 font-medium">Status</th>
                   <th className="px-6 py-3 font-medium">Supervisor</th>
+                  <th className="px-6 py-3 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -252,6 +328,23 @@ export const AdminDashboard = () => {
                       <td className="px-6 py-4">
                         {project.supervisor?.firstName}{" "}
                         {project.supervisor?.lastName}
+                      </td>
+                      <td className="px-6 py-4 flex gap-3 text-sm">
+                        <button
+                          onClick={() => {
+                            setSelectedProject(project);
+                            setIsEditProjectModalOpen(true);
+                          }}
+                          className="text-blue-600 hover:underline"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProject(project)}
+                          className="text-red-600 hover:underline"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   ))
