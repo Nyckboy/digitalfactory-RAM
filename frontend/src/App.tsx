@@ -3,6 +3,7 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { Login } from './pages/auth/Login';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
+import { ProjectTaskBoard } from './pages/supervisor/ProjectTaskBoard';
 
 // Placeholder components (we will build these out later)
 const InternDashboard = () => <div className="p-10 text-xl font-bold">Intern Dashboard</div>;
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={['SUPERVISOR']} />,
         children: [
           { path: '/supervisor', element: <SupervisorDashboard /> },
+          { path: '/supervisor/projects/:projectId/board', element: <ProjectTaskBoard /> },
         ],
       },
       // Intern Routes

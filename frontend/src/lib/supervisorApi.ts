@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { PaginatedResponse, ProjectDTO } from '../types/api';
+import type { PaginatedResponse, ProjectDTO, TaskDTO } from '../types/api';
 
 export interface CreateTaskPayload {
   title: string;
@@ -19,6 +19,22 @@ export const supervisorService = {
   // Create a new task
   createTask: async (taskData: CreateTaskPayload) => {
     const response = await api.post('/supervisor/tasks', taskData);
+    return response.data;
+  },
+
+  getProjectTasks: async (projectId: string, page = 0, size = 50) => {
+    // We use a larger size default for a board view to fetch most tasks at once
+    const response = await api.get<PaginatedResponse<TaskDTO>>(`/supervisor/projects/${projectId}/tasks?page=${page}&size=${size}`);
+    return response.data;
+  },
+
+  updateTask: async (taskId: string, taskData: Partial<TaskDTO>) => {
+    const response = await api.put<TaskDTO>(`/supervisor/tasks/${taskId}`, taskData);
+    return response.data;
+  },
+
+  deleteTask: async (taskId: string) => {
+    const response = await api.delete(`/supervisor/tasks/${taskId}`);
     return response.data;
   }
 };

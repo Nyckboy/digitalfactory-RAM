@@ -28,3 +28,15 @@ export interface ProjectDTO {
   supervisor: UserDTO;
   interns: UserDTO[];
 }
+
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE';
+
+export interface TaskDTO {
+  id: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  deadline: string;
+  projectId: string;
+  assignedTo: UserDTO;
+}
