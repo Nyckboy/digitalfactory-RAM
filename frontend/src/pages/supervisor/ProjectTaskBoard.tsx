@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supervisorService } from '../../lib/supervisorApi';
 import type { TaskDTO, TaskStatus } from '../../types/api';
+import { TaskCommentsModal } from '../../components/shared/TaskCommentsModal';
 
 export const ProjectTaskBoard = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -10,6 +11,15 @@ export const ProjectTaskBoard = () => {
   const [tasks, setTasks] = useState<TaskDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Add Chat Modal State
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [chatTask, setChatTask] = useState<TaskDTO | null>(null);
+
+  const openChat = (task: TaskDTO) => {
+    setChatTask(task);
+    setChatModalOpen(true);
+  };
 
   const fetchTasks = useCallback(async () => {
     if (!projectId) return;
@@ -69,6 +79,15 @@ export const ProjectTaskBoard = () => {
 
   return (
     <div className="min-h-screen bg-white p-8">
+
+      <TaskCommentsModal
+        isOpen={chatModalOpen}
+        task={chatTask}
+        onClose={() => setChatModalOpen(false)}
+        fetchComments={supervisorService.getTaskComments}
+        postComment={supervisorService.addTaskComment}
+      />
+    
       <div className="flex items-center mb-8 gap-4">
         <button 
           onClick={() => navigate('/supervisor')}
@@ -111,6 +130,13 @@ export const ProjectTaskBoard = () => {
                       <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-700" title={task.assignedTo?.firstName}>
                         {task.assignedTo?.firstName?.[0]?.toUpperCase()}
                       </div>
+                      <button 
+                        onClick={() => openChat(task)}
+                        className="text-xs text-gray-500 hover:text-blue-600"
+                        title="Open Chat"
+                      >
+                        💬
+                      </button>
                     </div>
                     
                     <select

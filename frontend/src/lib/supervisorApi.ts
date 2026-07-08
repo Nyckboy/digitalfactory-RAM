@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { PaginatedResponse, ProjectDTO, TaskDTO } from '../types/api';
+import type { CommentDTO, PaginatedResponse, ProjectDTO, TaskDTO } from '../types/api';
 
 export interface CreateTaskPayload {
   title: string;
@@ -35,6 +35,16 @@ export const supervisorService = {
 
   deleteTask: async (taskId: string) => {
     const response = await api.delete(`/supervisor/tasks/${taskId}`);
+    return response.data;
+  },
+
+  getTaskComments: async (taskId: string) => {
+    const response = await api.get<CommentDTO[]>(`/supervisor/tasks/${taskId}/comments`);
+    return response.data;
+  },
+
+  addTaskComment: async (taskId: string, content: string) => {
+    const response = await api.post<CommentDTO>(`/supervisor/tasks/${taskId}/comments`, { content });
     return response.data;
   }
 };

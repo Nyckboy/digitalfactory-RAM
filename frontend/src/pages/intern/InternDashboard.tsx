@@ -3,6 +3,7 @@ import { useAuthStore } from "../../store/useAuthStore";
 import { internService } from "../../lib/internApi";
 import type { TaskDTO, TaskStatus } from "../../types/api";
 import { SubmissionModal } from "./SubmissionModal";
+import { TaskCommentsModal } from "../../components/shared/TaskCommentsModal";
 
 export const InternDashboard = () => {
   const { user, logout } = useAuthStore();
@@ -12,6 +13,10 @@ export const InternDashboard = () => {
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TaskDTO | null>(null);
+
+  // Chat Modal State
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [chatTask, setChatTask] = useState<TaskDTO | null>(null);
 
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
@@ -29,7 +34,10 @@ export const InternDashboard = () => {
     fetchTasks();
   }, [fetchTasks]);
 
-  console.log(tasks);
+  const openChat = (task: TaskDTO) => {
+    setChatTask(task);
+    setChatModalOpen(true);
+  };
 
   // 1. Independent Status Change Handler
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
@@ -86,6 +94,14 @@ export const InternDashboard = () => {
         task={selectedTask}
         onClose={() => setModalOpen(false)}
         onSubmit={handleUrlSubmit}
+      />
+
+      <TaskCommentsModal
+        isOpen={chatModalOpen}
+        task={chatTask}
+        onClose={() => setChatModalOpen(false)}
+        fetchComments={internService.getTaskComments}
+        postComment={internService.addTaskComment}
       />
 
       <div className="flex justify-between items-center mb-8">
@@ -160,6 +176,12 @@ export const InternDashboard = () => {
                           + Attach Link
                         </button>
                       )}
+                      <button 
+                        onClick={() => openChat(task)}
+                        className="text-xs text-gray-500 hover:text-blue-600 flex items-center gap-1"
+                      >
+                        💬 Chat
+                      </button>
                     </div>
 
                     <div className="mt-auto pt-3 border-t border-gray-50">

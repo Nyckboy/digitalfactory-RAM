@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { PaginatedResponse, TaskDTO, TaskStatus } from '../types/api';
+import type { CommentDTO, PaginatedResponse, TaskDTO, TaskStatus } from '../types/api';
 
 export const internService = {
   getMyTasks: async (page = 0, size = 50) => {
@@ -10,6 +10,16 @@ export const internService = {
   // Refactored to accept a partial payload
   updateTask: async (taskId: string, payload: { status?: TaskStatus; submissionUrl?: string }) => {
     const response = await api.patch<TaskDTO>(`/intern/tasks/${taskId}`, payload);
+    return response.data;
+  },
+
+  getTaskComments: async (taskId: string) => {
+    const response = await api.get<CommentDTO[]>(`/intern/tasks/${taskId}/comments`);
+    return response.data;
+  },
+
+  addTaskComment: async (taskId: string, content: string) => {
+    const response = await api.post<CommentDTO>(`/intern/tasks/${taskId}/comments`, { content });
     return response.data;
   }
 };

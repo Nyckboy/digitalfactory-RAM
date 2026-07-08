@@ -41,3 +41,11 @@ export interface TaskDTO {
   assignedTo: UserDTO;
   submissionUrl?: string | null; 
 }
+
+export interface CommentDTO {
+  id: string;
+  content: string;
+  createdAt: string;
+  authorName: string;
+  authorRole: string; // 'SUPERVISOR' | 'INTERN'
+}
