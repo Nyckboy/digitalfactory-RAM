@@ -1,9 +1,11 @@
 package com.digitalfactory.platform.controller;
 
+import com.digitalfactory.platform.dto.request.CommentCreateRequest;
 import com.digitalfactory.platform.dto.request.TaskStatusUpdateRequest;
 import com.digitalfactory.platform.dto.response.MessageResponse;
 import com.digitalfactory.platform.dto.response.PageResponse;
 import com.digitalfactory.platform.dto.response.TaskResponse;
+import com.digitalfactory.platform.service.CommentService;
 import com.digitalfactory.platform.service.InternService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.UUID;
 public class InternController {
 
     private final InternService internService;
+    private final CommentService commentService;
 
     @GetMapping("/tasks")
     public ResponseEntity<PageResponse<TaskResponse>> getMyTasks(
@@ -46,6 +49,33 @@ public class InternController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/tasks/{taskId}/comments")
+    public ResponseEntity<?> getTaskComments(
+            Principal principal,
+            @PathVariable UUID taskId
+    ) {
+        try {
+            var comments = commentService.getTaskComments(principal.getName(), taskId);
+            return ResponseEntity.ok(comments);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/tasks/{taskId}/comments")
+    public ResponseEntity<?> addComment(
+            Principal principal,
+            @PathVariable UUID taskId,
+            @Valid @RequestBody CommentCreateRequest request
+    ) {
+        try {
+            var comment = commentService.addComment(principal.getName(), taskId, request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(comment);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse(e.getMessage()));
         }
     }
 }
