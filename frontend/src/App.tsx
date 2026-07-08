@@ -4,9 +4,9 @@ import { Login } from './pages/auth/Login';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
 import { ProjectTaskBoard } from './pages/supervisor/ProjectTaskBoard';
+import { InternDashboard } from './pages/intern/InternDashboard';
 
 // Placeholder components (we will build these out later)
-const InternDashboard = () => <div className="p-10 text-xl font-bold">Intern Dashboard</div>;
 
 const router = createBrowserRouter([
   // Public Route

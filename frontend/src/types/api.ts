@@ -39,4 +39,5 @@ export interface TaskDTO {
   deadline: string;
   projectId: string;
   assignedTo: UserDTO;
+  submissionUrl?: string | null; // <-- Add this field
 }

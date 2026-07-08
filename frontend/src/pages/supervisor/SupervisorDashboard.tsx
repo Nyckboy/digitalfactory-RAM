@@ -33,7 +33,6 @@ export const SupervisorDashboard = () => {
       setIsLoading(false);
     }
   }, []);
-  console.log(projects);
 
   useEffect(() => {
     fetchProjects(page);
