@@ -8,6 +8,8 @@ import { InternDashboard } from './pages/intern/InternDashboard';
 import { TeamView } from './pages/admin/TeamView';
 import { ProjectsView } from './pages/admin/ProjectsView';
 import { AdminLayout } from './pages/admin/AdminLayout';
+import { SupervisorLayout } from './pages/supervisor/SupervisorLayout';
+import { SupervisorProjectsView } from './pages/supervisor/SupervisorProjectsView';
 
 const router = createBrowserRouter([
   {
@@ -40,8 +42,15 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute allowedRoles={['SUPERVISOR']} />,
         children: [
-          { path: '/supervisor', element: <SupervisorDashboard /> },
-          { path: '/supervisor/projects/:projectId/board', element: <ProjectTaskBoard /> },
+          {
+            path: '/supervisor',
+            element: <SupervisorLayout />,
+            children: [
+              { index: true, element: <SupervisorDashboard /> },
+              { path: 'projects', element: <SupervisorProjectsView /> },
+              { path: 'projects/:projectId/board', element: <ProjectTaskBoard /> },
+            ]
+          },
         ],
       },
       // Intern Routes
