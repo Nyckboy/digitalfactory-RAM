@@ -52,10 +52,14 @@ export const SupervisorLayout = () => {
             <span className="text-sm">Dashboard</span>
           </NavLink>
 
-          {/* Now Active! */}
           <NavLink to="/supervisor/projects" className={navItemClass}>
             <span className="material-symbols-outlined">folder_managed</span>
             <span className="text-sm">Projects</span>
+          </NavLink>
+
+          <NavLink to="/supervisor/team" className={navItemClass}>
+            <span className="material-symbols-outlined">groups</span>
+            <span className="text-sm">Team Directory</span>
           </NavLink>
 
           {/* GREYED OUT LINKS (WIP) */}
@@ -66,13 +70,6 @@ export const SupervisorLayout = () => {
             >
               <span className="material-symbols-outlined">checklist</span>
               <span className="text-sm">Tasks (WIP)</span>
-            </a>
-            <a
-              className="flex items-center gap-4 px-3 py-3 rounded-lg text-secondary font-medium"
-              href="#"
-            >
-              <span className="material-symbols-outlined">groups</span>
-              <span className="text-sm">Team (WIP)</span>
             </a>
             <a
               className="flex items-center gap-4 px-3 py-3 rounded-lg text-secondary font-medium"

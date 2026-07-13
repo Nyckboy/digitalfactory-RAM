@@ -10,6 +10,7 @@ import { ProjectsView } from './pages/admin/ProjectsView';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { SupervisorLayout } from './pages/supervisor/SupervisorLayout';
 import { SupervisorProjectsView } from './pages/supervisor/SupervisorProjectsView';
+import { SupervisorTeamView } from './pages/supervisor/SupervisorTeamView';
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
             children: [
               { index: true, element: <SupervisorDashboard /> },
               { path: 'projects', element: <SupervisorProjectsView /> },
+              { path: 'team', element: <SupervisorTeamView /> },
               { path: 'projects/:projectId/board', element: <ProjectTaskBoard /> },
             ]
           },
