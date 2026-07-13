@@ -280,10 +280,7 @@ export const ProjectTaskBoard = () => {
                           {task.assignedTo?.firstName?.[0]?.toUpperCase()}
                         </div>
                         <button
-                          onClick={() => {
-                            setChatTask(task);
-                            setChatModalOpen(true);
-                          }}
+                          onClick={() => openChat(task)}
                           className="text-secondary hover:text-primary-container transition-colors flex items-center justify-center w-6 h-6 rounded-full hover:bg-surface-container-low"
                           title="Comments"
                         >
