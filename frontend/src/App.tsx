@@ -5,21 +5,18 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
 import { ProjectTaskBoard } from './pages/supervisor/ProjectTaskBoard';
 import { InternDashboard } from './pages/intern/InternDashboard';
-
-// Placeholder components (we will build these out later)
+import { TeamView } from './pages/admin/TeamView';
+import { ProjectsView } from './pages/admin/ProjectsView';
+import { AdminLayout } from './pages/admin/AdminLayout';
 
 const router = createBrowserRouter([
-  // Public Route
   {
     path: '/login',
     element: <Login />,
   },
-  
-  // Protected Routes
   {
-    element: <ProtectedRoute />, // Base protection: Must be logged in
+    element: <ProtectedRoute />, 
     children: [
-      // Base path redirects to role-specific dashboard
       {
         path: '/',
         element: <Navigate to="/login" replace />, 
@@ -28,7 +25,15 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute allowedRoles={['SUPER_ADMIN']} />,
         children: [
-          { path: '/admin', element: <AdminDashboard /> },
+          {
+            path: '/admin',
+            element: <AdminLayout />, // <-- Layout wraps the nested routes
+            children: [
+              { index: true, element: <AdminDashboard /> }, // Renders at /admin
+              { path: 'projects', element: <ProjectsView /> }, // Renders at /admin/projects
+              { path: 'team', element: <TeamView /> }, // Renders at /admin/team
+            ]
+          },
         ],
       },
       // Supervisor Routes
@@ -48,8 +53,6 @@ const router = createBrowserRouter([
       },
     ],
   },
-  
-  // Catch-all route for 404s
   {
     path: '*',
     element: <div className="p-10 text-center text-red-500">404 - Page Not Found</div>,
