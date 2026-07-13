@@ -1,24 +1,28 @@
-import { useState, useEffect, useRef } from 'react';
-import type { TaskDTO, CommentDTO } from '../../types/api';
-import { useAuthStore } from '../../store/useAuthStore';
+import { useState, useEffect, useRef } from "react";
+import type { TaskDTO, CommentDTO } from "../../types/api";
+import { useAuthStore } from "../../store/useAuthStore";
 
 interface TaskCommentsModalProps {
   isOpen: boolean;
   task: TaskDTO | null;
   onClose: () => void;
-  // We pass these as props so the component doesn't care if it's a supervisor or intern
   fetchComments: (taskId: string) => Promise<CommentDTO[]>;
   postComment: (taskId: string, content: string) => Promise<CommentDTO>;
 }
 
-export const TaskCommentsModal = ({ isOpen, task, onClose, fetchComments, postComment }: TaskCommentsModalProps) => {
+export const TaskCommentsModal = ({
+  isOpen,
+  task,
+  onClose,
+  fetchComments,
+  postComment,
+}: TaskCommentsModalProps) => {
   const { user } = useAuthStore();
   const [comments, setComments] = useState<CommentDTO[]>([]);
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  
-  // Ref to automatically scroll to the newest message
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,7 +36,6 @@ export const TaskCommentsModal = ({ isOpen, task, onClose, fetchComments, postCo
   }, [isOpen, task, fetchComments]);
 
   useEffect(() => {
-    // Scroll to bottom whenever comments change
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [comments]);
 
@@ -45,49 +48,80 @@ export const TaskCommentsModal = ({ isOpen, task, onClose, fetchComments, postCo
     setIsSending(true);
     try {
       const addedComment = await postComment(task.id, newComment.trim());
-      setComments(prev => [...prev, addedComment]);
-      setNewComment('');
+      setComments((prev) => [...prev, addedComment]);
+      setNewComment("");
     } catch (error) {
-      console.error('Failed to post comment', error);
+      console.error("Failed to post comment", error);
     } finally {
       setIsSending(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="w-full max-w-lg bg-white rounded-xl shadow-xl flex flex-col h-150 max-h-[90vh]">
-        
+    <div className="fixed inset-0 z-70 flex justify-end bg-black/40 backdrop-blur-[2px] transition-opacity font-sans">
+      {/* Clickable backdrop to close */}
+      <div className="absolute inset-0" onClick={onClose}></div>
+
+      {/* Slide-over Drawer Panel */}
+      <div className="relative w-full max-w-md bg-surface-container-lowest h-full shadow-2xl flex flex-col animate-slide-in-right">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+        <div className="flex items-center justify-between p-6 border-b border-surface-container-highest bg-surface-container-lowest z-10">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">Task Chat</h2>
-            <p className="text-xs text-gray-500 line-clamp-1">{task.title}</p>
+            <h2 className="text-lg font-bold text-on-surface">
+              Task Discussion
+            </h2>
+            <p className="text-xs font-semibold text-secondary mt-1 line-clamp-1">
+              {task.title}
+            </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 p-2">✕</button>
+          <button
+            onClick={onClose}
+            className="text-secondary hover:text-primary-container p-2 rounded-full hover:bg-surface-container-low transition-colors"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-background custom-scrollbar">
           {isLoading ? (
-            <div className="text-center text-gray-400 text-sm mt-10">Loading conversation...</div>
+            <div className="text-center text-secondary text-sm mt-10">
+              Loading conversation...
+            </div>
           ) : comments.length === 0 ? (
-            <div className="text-center text-gray-400 text-sm mt-10">No comments yet. Start the conversation!</div>
+            <div className="flex flex-col items-center justify-center h-full text-center text-secondary opacity-60">
+              <span className="material-symbols-outlined text-4xl mb-2">
+                forum
+              </span>
+              <p className="text-sm">No comments yet.</p>
+              <p className="text-xs mt-1">
+                Be the first to start the conversation!
+              </p>
+            </div>
           ) : (
             comments.map((comment) => {
-              // Determine if the logged-in user is the author
+              // Assuming your backend uses authorRole or ID to determine the sender
               const isMe = user?.role === comment.authorRole;
 
               return (
-                <div key={comment.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                  <span className="text-[10px] text-gray-400 mb-1 px-1">
-                    {comment.authorName} • {new Date(comment.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <div
+                  key={comment.id}
+                  className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                >
+                  <span className="text-[10px] font-semibold text-secondary mb-1.5 px-1 uppercase tracking-wider">
+                    {comment.authorName} •{" "}
+                    {new Date(comment.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </span>
-                  <div className={`px-4 py-2 rounded-2xl max-w-[80%] text-sm ${
-                    isMe 
-                      ? 'bg-blue-600 text-white rounded-br-none' 
-                      : 'bg-white text-gray-800 border border-gray-100 shadow-sm rounded-bl-none'
-                  }`}>
+                  <div
+                    className={`px-4 py-2.5 max-w-[85%] text-sm shadow-sm ${
+                      isMe
+                        ? "bg-primary-container text-on-primary rounded-2xl rounded-tr-sm"
+                        : "bg-surface-container-lowest text-on-surface border border-outline-variant/30 rounded-2xl rounded-tl-sm"
+                    }`}
+                  >
                     {comment.content}
                   </div>
                 </div>
@@ -98,26 +132,31 @@ export const TaskCommentsModal = ({ isOpen, task, onClose, fetchComments, postCo
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-white border-t border-gray-100 rounded-b-xl">
-          <form onSubmit={handleSend} className="flex gap-2">
+        <div className="p-4 bg-surface-container-lowest border-t border-surface-container-highest z-10">
+          <form onSubmit={handleSend} className="flex gap-3">
             <input
               type="text"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Type a message..."
-              className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+              className="flex-1 px-4 py-3 bg-[#F1F3F5] border border-outline-variant rounded-full focus:ring-1 focus:ring-primary focus:border-primary outline-none text-sm text-on-surface transition-colors placeholder:text-secondary"
               disabled={isSending}
             />
             <button
               type="submit"
               disabled={!newComment.trim() || isSending}
-              className="p-2 px-4 bg-blue-600 text-white font-medium rounded-full hover:bg-blue-700 disabled:opacity-50 transition"
+              className={`p-3 rounded-full flex items-center justify-center transition-colors shadow-sm ${
+                !newComment.trim() || isSending
+                  ? "bg-surface-container-highest text-secondary cursor-not-allowed"
+                  : "bg-primary-container text-on-primary hover:bg-primary"
+              }`}
             >
-              Send
+              <span className="material-symbols-outlined text-[20px] translate-x-1px">
+                send
+              </span>
             </button>
           </form>
         </div>
-
       </div>
     </div>
   );

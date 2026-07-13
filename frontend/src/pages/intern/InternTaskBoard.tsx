@@ -1,41 +1,30 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { supervisorService } from "../../lib/supervisorApi";
+import { internService } from "../../lib/internApi";
 import type { TaskDTO, TaskStatus } from "../../types/api";
+import { SubmissionModal } from "./SubmissionModal";
 import { TaskCommentsModal } from "../../components/shared/TaskCommentsModal";
 
-export const ProjectTaskBoard = () => {
-  const { projectId } = useParams<{ projectId: string }>();
-  const navigate = useNavigate();
-
+export const InternTaskBoard = () => {
   const [tasks, setTasks] = useState<TaskDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<TaskDTO | null>(null);
 
   const [chatModalOpen, setChatModalOpen] = useState(false);
   const [chatTask, setChatTask] = useState<TaskDTO | null>(null);
 
-  const openChat = (task: TaskDTO) => {
-    setChatTask(task);
-    setChatModalOpen(true);
-  };
-
   const fetchTasks = useCallback(async () => {
-    if (!projectId) return;
     setIsLoading(true);
     try {
-      const response = await supervisorService.getProjectTasks(
-        projectId,
-        0,
-        100,
-      );
+      const response = await internService.getMyTasks(0, 50);
       setTasks(response.content);
-    } catch (err) {
-      setError("Failed to load project tasks.");
+    } catch (error) {
+      console.error("Failed to fetch intern tasks:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [projectId]);
+  }, []);
 
   useEffect(() => {
     fetchTasks();
@@ -46,18 +35,26 @@ export const ProjectTaskBoard = () => {
       prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
     );
     try {
-      await supervisorService.updateTask(taskId, { status: newStatus });
-    } catch (err) {
+      await internService.updateTask(taskId, { status: newStatus });
+    } catch (error) {
+      console.error("Failed to update task status:", error);
       fetchTasks();
     }
   };
 
-  const handleDelete = async (taskId: string) => {
-    if (!window.confirm("Are you sure you want to delete this task?")) return;
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+  const handleUrlSubmit = async (taskId: string, url: string) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, submissionUrl: url } : t)),
+    );
     try {
-      await supervisorService.deleteTask(taskId);
-    } catch (err) {
+      await internService.updateTask(taskId, {
+        status: task.status,
+        submissionUrl: url,
+      });
+    } catch (error) {
+      console.error("Failed to update task URL:", error);
       fetchTasks();
     }
   };
@@ -68,6 +65,7 @@ export const ProjectTaskBoard = () => {
     taskId: string,
   ) => {
     e.dataTransfer.setData("taskId", taskId);
+    // Optional: Make the card slightly transparent while dragging
     e.currentTarget.style.opacity = "0.5";
   };
 
@@ -76,7 +74,7 @@ export const ProjectTaskBoard = () => {
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
+    e.preventDefault(); // Necessary to allow dropping
   };
 
   const handleDrop = (
@@ -134,38 +132,35 @@ export const ProjectTaskBoard = () => {
 
   if (isLoading)
     return (
-      <div className="py-10 text-center text-secondary">Loading board...</div>
+      <div className="py-10 text-center text-secondary">
+        Loading your tasks...
+      </div>
     );
-  if (error) return <div className="py-10 text-center text-error">{error}</div>;
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
+      <SubmissionModal
+        isOpen={modalOpen}
+        task={selectedTask}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleUrlSubmit}
+      />
       <TaskCommentsModal
         isOpen={chatModalOpen}
         task={chatTask}
         onClose={() => setChatModalOpen(false)}
-        fetchComments={supervisorService.getTaskComments}
-        postComment={supervisorService.addTaskComment}
+        fetchComments={internService.getTaskComments}
+        postComment={internService.addTaskComment}
       />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 shrink-0">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate("/supervisor/projects")}
-            className="px-4 py-2 text-sm font-medium text-secondary bg-surface-container-lowest border border-outline-variant  hover:bg-surface-container-low transition-colors duration-200 rounded-lg flex items-center gap-2 shadow-sm"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              arrow_back
-            </span>
-          </button>
-          <div>
-            <h2 className="text-3xl font-bold text-on-background tracking-tight">
-              Project Board
-            </h2>
-            <p className="text-sm text-secondary mt-1">
-              Oversee tasks and review intern deliverables.
-            </p>
-          </div>
+        <div>
+          <h2 className="text-3xl font-bold text-on-background tracking-tight">
+            Sprint Board
+          </h2>
+          <p className="text-sm text-secondary mt-1">
+            Manage and track your assigned deliverables.
+          </p>
         </div>
         <div className="flex items-center gap-3 opacity-40 pointer-events-none select-none">
           <button className="bg-surface-container-lowest border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg py-2 px-4 flex items-center gap-2 text-sm font-medium shadow-sm">
@@ -211,21 +206,10 @@ export const ProjectTaskBoard = () => {
                     onDragEnd={handleDragEnd}
                     className="bg-surface-container-lowest rounded-lg p-4 shadow-[0px_30px_40px_rgba(0,0,0,0.04)] hover:-translate-y-1 hover:shadow-[0px_40px_50px_rgba(0,0,0,0.06)] transition-all duration-200 border border-transparent hover:border-surface-container-highest cursor-grab active:cursor-grabbing group"
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex flex-wrap gap-2">
-                        <span className="bg-surface-container text-secondary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
-                          Task
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => handleDelete(task.id)}
-                        className="text-secondary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Delete Task"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">
-                          close
-                        </span>
-                      </button>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="bg-surface-container text-secondary text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
+                        Task
+                      </span>
                     </div>
 
                     <h4 className="text-sm font-bold text-on-background mb-2 leading-tight">
@@ -242,17 +226,30 @@ export const ProjectTaskBoard = () => {
                             href={task.submissionUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs font-semibold text-primary hover:underline truncate max-w-full"
+                            className="text-xs font-semibold text-primary hover:underline truncate max-w-37.5"
                           >
                             View Deliverable ↗
                           </a>
+                          <button
+                            onClick={() => {
+                              setSelectedTask(task);
+                              setModalOpen(true);
+                            }}
+                            className="text-xs text-secondary hover:text-on-surface font-medium"
+                          >
+                            Edit
+                          </button>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center bg-surface-container-low/50 px-3 py-2 rounded-lg border border-dashed border-outline-variant/50">
-                          <span className="text-[11px] text-secondary font-medium italic">
-                            No deliverable attached
-                          </span>
-                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedTask(task);
+                            setModalOpen(true);
+                          }}
+                          className="w-full border border-dashed border-outline-variant text-secondary hover:text-primary hover:border-primary hover:bg-surface-container-low transition-colors py-1.5 rounded-lg text-xs font-semibold"
+                        >
+                          + Attach Link
+                        </button>
                       )}
                     </div>
 
@@ -272,26 +269,18 @@ export const ProjectTaskBoard = () => {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-6 h-6 rounded-full bg-tertiary-fixed flex items-center justify-center text-[10px] font-bold text-tertiary border border-surface-container-lowest shadow-sm cursor-help"
-                          title={`Assigned to ${task.assignedTo?.firstName} ${task.assignedTo?.lastName}`}
-                        >
-                          {task.assignedTo?.firstName?.[0]?.toUpperCase()}
-                        </div>
-                        <button
-                          onClick={() => {
-                            setChatTask(task);
-                            setChatModalOpen(true);
-                          }}
-                          className="text-secondary hover:text-primary-container transition-colors flex items-center justify-center w-6 h-6 rounded-full hover:bg-surface-container-low"
-                          title="Comments"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">
-                            chat_bubble
-                          </span>
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => {
+                          setChatTask(task);
+                          setChatModalOpen(true);
+                        }}
+                        className="text-secondary hover:text-primary-container transition-colors flex items-center justify-center w-6 h-6 rounded-full hover:bg-surface-container-low"
+                        title="Comments"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">
+                          chat_bubble
+                        </span>
+                      </button>
                     </div>
                   </div>
                 ))}

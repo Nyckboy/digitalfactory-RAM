@@ -11,6 +11,8 @@ import { AdminLayout } from './pages/admin/AdminLayout';
 import { SupervisorLayout } from './pages/supervisor/SupervisorLayout';
 import { SupervisorProjectsView } from './pages/supervisor/SupervisorProjectsView';
 import { SupervisorTeamView } from './pages/supervisor/SupervisorTeamView';
+import { InternLayout } from './pages/intern/InternLayout';
+import { InternTaskBoard } from './pages/intern/InternTaskBoard';
 
 const router = createBrowserRouter([
   {
@@ -59,7 +61,14 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute allowedRoles={['INTERN']} />,
         children: [
-          { path: '/intern', element: <InternDashboard /> },
+          {
+            path: '/intern',
+            element: <InternLayout />,
+            children: [
+              { index: true, element: <InternDashboard /> }, 
+              { path: 'tasks', element: <InternTaskBoard /> },
+            ]
+          },
         ],
       },
     ],
