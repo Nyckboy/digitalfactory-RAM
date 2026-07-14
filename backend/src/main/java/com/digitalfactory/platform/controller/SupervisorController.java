@@ -33,8 +33,7 @@ public class SupervisorController {
             @RequestParam(defaultValue = "10") int size
     ) {
         // principal.getName() safely returns the email extracted from the JWT token
-        var projects = supervisorService.getMyProjects(principal.getName(), page, size);
-        return ResponseEntity.ok(new PageResponse<>(projects));
+        return ResponseEntity.ok(new PageResponse<>(supervisorService.getMyProjects(principal.getName(), page, size)));
     }
 
     @PostMapping("/tasks")
@@ -42,17 +41,8 @@ public class SupervisorController {
             Principal principal,
             @Valid @RequestBody TaskCreateRequest request
     ) {
-        try {
-            supervisorService.createTask(principal.getName(), request);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new MessageResponse("Task created and assigned successfully"));
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageResponse(e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageResponse(e.getMessage()));
-        }
+        supervisorService.createTask(principal.getName(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Task created and assigned successfully"));
     }
 
     @GetMapping("/projects/{projectId}/tasks")
@@ -62,12 +52,7 @@ public class SupervisorController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        try {
-            var tasks = supervisorService.getProjectTasks(principal.getName(), projectId, page, size);
-            return ResponseEntity.ok(new PageResponse<>(tasks));
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        return ResponseEntity.ok(new PageResponse<>(supervisorService.getProjectTasks(principal.getName(), projectId, page, size)));
     }
 
     @PutMapping("/tasks/{taskId}")
@@ -76,30 +61,21 @@ public class SupervisorController {
             @PathVariable UUID taskId,
             @RequestBody TaskUpdateRequest request
     ) {
-        try {
-            TaskResponse updatedTask = supervisorService.updateTask(principal.getName(), taskId, request);
-            return ResponseEntity.ok(updatedTask);
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageResponse(e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageResponse(e.getMessage()));
-        }
+        return ResponseEntity.ok(supervisorService.updateTask(principal.getName(), taskId, request));
     }
+
+    // @GetMapping("/tasks/{taskId}")
+    // public ResponseEntity<TaskResponse> getTaskById(Principal principal, @PathVariable UUID taskId) {
+    //     return ResponseEntity.ok(supervisorService.getTaskById(principal.getName(), taskId));
+    // }
 
     @DeleteMapping("/tasks/{taskId}")
     public ResponseEntity<?> deleteTask(
             Principal principal,
             @PathVariable UUID taskId
     ) {
-        try {
-            supervisorService.deleteTask(principal.getName(), taskId);
-            return ResponseEntity.ok(new MessageResponse("Task deleted successfully"));
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageResponse(e.getMessage()));
-        }
+        supervisorService.deleteTask(principal.getName(), taskId);
+        return ResponseEntity.ok(new MessageResponse("Task deleted successfully"));
     }
 
     @GetMapping("/tasks/{taskId}/comments")
@@ -107,12 +83,7 @@ public class SupervisorController {
             Principal principal,
             @PathVariable UUID taskId
     ) {
-        try {
-            var comments = commentService.getTaskComments(principal.getName(), taskId);
-            return ResponseEntity.ok(comments);
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse(e.getMessage()));
-        }
+        return ResponseEntity.ok(commentService.getTaskComments(principal.getName(), taskId));
     }
 
     @PostMapping("/tasks/{taskId}/comments")
@@ -121,11 +92,6 @@ public class SupervisorController {
             @PathVariable UUID taskId,
             @Valid @RequestBody CommentCreateRequest request
     ) {
-        try {
-            var comment = commentService.addComment(principal.getName(), taskId, request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(comment);
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse(e.getMessage()));
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addComment(principal.getName(), taskId, request));
     }
 }

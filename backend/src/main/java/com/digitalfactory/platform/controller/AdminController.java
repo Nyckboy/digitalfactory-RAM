@@ -29,69 +29,39 @@ public class AdminController {
 
     @PostMapping("/users/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
-        try {
-            userService.registerUser(request);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new MessageResponse("User registered successfully"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageResponse(e.getMessage()));
-        }
+        userService.registerUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("User registered successfully"));
     }
 
     @GetMapping("/users")
     public ResponseEntity<PageResponse<UserResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        var userPage = userService.getAllUsers(page, size);
-        return ResponseEntity.ok(new PageResponse<>(userPage));
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(new PageResponse<>(userService.getAllUsers(page, size)));
     }
 
     @PutMapping("/users/{userId}")
-    public ResponseEntity<?> updateUser(
-            @PathVariable UUID userId,
-            @RequestBody UserUpdateRequest request
-    ) {
-        try {
-            return ResponseEntity.ok(userService.updateUser(userId, request));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(e.getMessage()));
-        }
+    public ResponseEntity<?> updateUser(@PathVariable UUID userId, @RequestBody UserUpdateRequest request) {
+        return ResponseEntity.ok(userService.updateUser(userId, request));
     }
 
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable UUID userId) {
-        try {
-            userService.deleteUser(userId);
-            return ResponseEntity.ok(new MessageResponse("User deleted successfully"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(e.getMessage()));
-        } catch (IllegalStateException e) {
-            // Returns 409 Conflict if we had to deactivate instead of hard delete
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse(e.getMessage()));
-        }
+        userService.deleteUser(userId);
+        return ResponseEntity.ok(new MessageResponse("User deleted successfully"));
     }
 
     @PostMapping("/projects")
     public ResponseEntity<?> createProject(@Valid @RequestBody ProjectCreateRequest request) {
-        try {
-            projectService.createProject(request);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new MessageResponse("Project created and assigned successfully"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageResponse(e.getMessage()));
-        }
+        projectService.createProject(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Project created and assigned successfully"));
     }
 
     @GetMapping("/projects")
     public ResponseEntity<PageResponse<ProjectResponse>> getAllProjects(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        var projectPage = projectService.getAllProjects(page, size);
-        return ResponseEntity.ok(new PageResponse<>(projectPage));
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(new PageResponse<>(projectService.getAllProjects(page, size)));
     }
 
     @PutMapping("/projects/{projectId}")
@@ -99,22 +69,12 @@ public class AdminController {
             @PathVariable UUID projectId,
             @RequestBody ProjectUpdateRequest request
     ) {
-        try {
-            return ResponseEntity.ok(projectService.updateProject(projectId, request));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse(e.getMessage()));
-        }
+        return ResponseEntity.ok(projectService.updateProject(projectId, request));
     }
 
     @DeleteMapping("/projects/{projectId}")
     public ResponseEntity<?> deleteProject(@PathVariable UUID projectId) {
-        try {
-            projectService.deleteProject(projectId);
-            return ResponseEntity.ok(new MessageResponse("Project deleted successfully"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse(e.getMessage()));
-        }
+        projectService.deleteProject(projectId);
+        return ResponseEntity.ok(new MessageResponse("Project deleted successfully"));
     }
 }

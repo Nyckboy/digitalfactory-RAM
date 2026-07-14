@@ -2,7 +2,6 @@ package com.digitalfactory.platform.controller;
 
 import com.digitalfactory.platform.dto.request.CommentCreateRequest;
 import com.digitalfactory.platform.dto.request.TaskStatusUpdateRequest;
-import com.digitalfactory.platform.dto.response.MessageResponse;
 import com.digitalfactory.platform.dto.response.PageResponse;
 import com.digitalfactory.platform.dto.response.TaskResponse;
 import com.digitalfactory.platform.service.CommentService;
@@ -30,8 +29,7 @@ public class InternController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        var tasks = internService.getMyTasks(principal.getName(), page, size);
-        return ResponseEntity.ok(new PageResponse<>(tasks));
+        return ResponseEntity.ok(new PageResponse<>(internService.getMyTasks(principal.getName(), page, size)));
     }
 
     @PatchMapping("/tasks/{taskId}")
@@ -40,16 +38,7 @@ public class InternController {
             @PathVariable UUID taskId,
             @Valid @RequestBody TaskStatusUpdateRequest request
     ) {
-        try {
-            TaskResponse updatedTask = internService.updateTaskStatus(principal.getName(), taskId, request);
-            return ResponseEntity.ok(updatedTask);
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(new MessageResponse(e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageResponse(e.getMessage()));
-        }
+        return ResponseEntity.ok(internService.updateTaskStatus(principal.getName(), taskId, request));
     }
 
     @GetMapping("/tasks/{taskId}/comments")
@@ -57,12 +46,7 @@ public class InternController {
             Principal principal,
             @PathVariable UUID taskId
     ) {
-        try {
-            var comments = commentService.getTaskComments(principal.getName(), taskId);
-            return ResponseEntity.ok(comments);
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse(e.getMessage()));
-        }
+        return ResponseEntity.ok(commentService.getTaskComments(principal.getName(), taskId));
     }
 
     @PostMapping("/tasks/{taskId}/comments")
@@ -71,11 +55,6 @@ public class InternController {
             @PathVariable UUID taskId,
             @Valid @RequestBody CommentCreateRequest request
     ) {
-        try {
-            var comment = commentService.addComment(principal.getName(), taskId, request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(comment);
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse(e.getMessage()));
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addComment(principal.getName(), taskId, request));
     }
 }
