@@ -49,3 +49,17 @@ export interface CommentDTO {
   authorName: string;
   authorRole: string; // 'SUPERVISOR' | 'INTERN'
 }
+
+export interface DashboardStats {
+  activeProjects: number;
+  teamMembers: number;
+  tasksCompleted: number;
+}
+
+export interface ActivityLog {
+  id: string;
+  actorName: string;
+  action: string;
+  target: string;
+  timestamp: string;
+}

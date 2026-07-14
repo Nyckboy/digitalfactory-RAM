@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { PaginatedResponse, UserDTO, ProjectDTO } from '../types/api';
+import type { PaginatedResponse, UserDTO, ProjectDTO, DashboardStats, ActivityLog } from '../types/api';
 
 export const adminService = {
   // Fetch Users
@@ -44,5 +44,15 @@ export const adminService = {
   deleteProject: async (projectId: string) => {
     const response = await api.delete(`/admin/projects/${projectId}`);
     return response.data;
-  }
+  },
+
+  getStats: async (): Promise<DashboardStats> => {
+  const response = await api.get('/admin/stats');
+  return response.data;
+  },
+
+  getRecentActivities: async (limit: number = 5): Promise<ActivityLog[]> => {
+  const response = await api.get(`/admin/activities?limit=${limit}`);
+  return response.data;
+  },
 };
