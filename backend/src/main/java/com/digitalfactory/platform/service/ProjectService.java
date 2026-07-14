@@ -2,17 +2,22 @@ package com.digitalfactory.platform.service;
 
 import com.digitalfactory.platform.dto.request.ProjectCreateRequest;
 import com.digitalfactory.platform.dto.request.ProjectUpdateRequest;
+import com.digitalfactory.platform.dto.response.AdminDashboardStatsResponse;
 import com.digitalfactory.platform.dto.response.ProjectResponse;
 import com.digitalfactory.platform.model.Project;
 import com.digitalfactory.platform.model.User;
+import com.digitalfactory.platform.model.enums.ProjectStatus;
+import com.digitalfactory.platform.model.enums.TaskStatus;
 import com.digitalfactory.platform.model.enums.UserRole;
 import com.digitalfactory.platform.repository.ProjectRepository;
+import com.digitalfactory.platform.repository.TaskRepository;
 import com.digitalfactory.platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +32,8 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
+    private final ActivityLogService activityLogService;
 
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
@@ -59,6 +66,16 @@ public class ProjectService {
                 .supervisor(supervisor)
                 .interns(validInterns)
                 .build();
+        
+        String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User admin = userRepository.findByEmail(adminEmail)
+            .orElseThrow(() -> new IllegalArgumentException("Admin not found"));
+
+        activityLogService.logActivity(
+            admin,
+            "created a new project:",
+            project.getTitle()
+        );
 
         return projectRepository.save(project);
     }
@@ -102,6 +119,16 @@ public class ProjectService {
             project.setInterns(validInterns);
         }
 
+        String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User admin = userRepository.findByEmail(adminEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Admin not found"));
+
+        activityLogService.logActivity(
+                admin,
+                "updated the configuration for project:",
+                project.getTitle()
+        );
+
         return ProjectResponse.fromEntity(projectRepository.save(project));
     }
 
@@ -118,5 +145,14 @@ public class ProjectService {
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("Cannot delete project because it has existing tasks. Delete tasks first.");
         }
+    }
+
+    // Inside your service class
+    public AdminDashboardStatsResponse getDashboardStats() {
+        return AdminDashboardStatsResponse.builder()
+                .activeProjects(projectRepository.countByStatus(ProjectStatus.ACTIVE))
+                .teamMembers(userRepository.countByRoleNot(UserRole.SUPER_ADMIN))
+                .tasksCompleted(taskRepository.countByStatus(TaskStatus.COMPLETED))
+                .build();
     }
 }

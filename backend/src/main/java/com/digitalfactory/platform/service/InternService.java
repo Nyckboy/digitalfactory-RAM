@@ -20,6 +20,7 @@ public class InternService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
 
     @Transactional(readOnly = true)
     public Page<TaskResponse> getMyTasks(String internEmail, int page, int size) {
@@ -45,6 +46,12 @@ public class InternService {
         if (request.getSubmissionUrl() != null) {
             task.setSubmissionUrl(request.getSubmissionUrl());
         }
+
+        activityLogService.logActivity(
+            task.getAssignedTo(), 
+            "updated task status to " + request.getStatus().name() + " on", 
+            task.getTitle()
+        );
 
         return TaskResponse.fromEntity(taskRepository.save(task));
     }

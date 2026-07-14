@@ -27,6 +27,7 @@ public class SupervisorService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
 
     @Transactional(readOnly = true)
     public Page<ProjectResponse> getMyProjects(String supervisorEmail, int page, int size) {
@@ -65,6 +66,12 @@ public class SupervisorService {
                 .project(project)
                 .assignedTo(intern)
                 .build();
+
+        activityLogService.logActivity(
+            supervisor,
+            "assigned a new task to " + intern.getFirstName() + ":",
+            task.getTitle()
+        );
 
         return taskRepository.save(task);
     }
@@ -109,6 +116,12 @@ public class SupervisorService {
             }
             task.setAssignedTo(newIntern);
         }
+
+        activityLogService.logActivity(
+            task.getProject().getSupervisor(),
+            "updated the details of task",
+            task.getTitle()
+        );
 
         return TaskResponse.fromEntity(taskRepository.save(task));
     }

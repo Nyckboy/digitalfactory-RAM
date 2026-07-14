@@ -23,6 +23,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final ActivityLogService activityLogService;
 
     @Transactional(readOnly = true)
     public List<CommentResponse> getTaskComments(String userEmail, UUID taskId) {
@@ -47,6 +48,11 @@ public class CommentService {
                 .author(author)
                 .build();
 
+        activityLogService.logActivity(
+            author,
+            "commented on the task",
+            task.getTitle()
+        );
         return CommentResponse.fromEntity(commentRepository.save(comment));
     }
 
