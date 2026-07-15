@@ -112,3 +112,19 @@ export interface TeamDirectoryProject {
   internCount: number;
   interns: TeamDirectoryIntern[];
 }
+
+export interface UrgentTask {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  deadline: string;
+  projectId: string;
+}
+
+export interface InternDashboardOverview {
+  assignedTasks: number;
+  completedDeliverables: number;
+  upcomingDeadlines: number;
+  urgentTasks: UrgentTask[];
+}

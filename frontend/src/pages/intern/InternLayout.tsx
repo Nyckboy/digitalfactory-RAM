@@ -48,6 +48,10 @@ export const InternLayout = () => {
 
         <nav className="flex-1 space-y-1.5">
           {/* Active Sprint Board Link */}
+          <NavLink to="/intern" end className={navItemClass}>
+            <span className="material-symbols-outlined">dashboard</span>
+            <span className="text-sm">Dashboard</span>
+          </NavLink>
           <NavLink to="/intern/tasks" className={navItemClass}>
             <span
               className="material-symbols-outlined"
@@ -63,13 +67,6 @@ export const InternLayout = () => {
             <div className="px-3 pb-2 text-xs font-bold text-secondary uppercase tracking-wider">
               Coming Soon
             </div>
-            <a
-              className="flex items-center gap-4 px-3 py-3 rounded-lg text-secondary font-medium"
-              href="#"
-            >
-              <span className="material-symbols-outlined">dashboard</span>
-              <span className="text-sm">Dashboard</span>
-            </a>
             <a
               className="flex items-center gap-4 px-3 py-3 rounded-lg text-secondary font-medium"
               href="#"
