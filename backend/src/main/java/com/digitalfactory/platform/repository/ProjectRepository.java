@@ -7,11 +7,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
     Page<Project> findBySupervisorId(UUID supervisorId, Pageable pageable);
+    // Fetch all projects for a specific supervisor without pagination
+    List<Project> findBySupervisorId(java.util.UUID supervisorId);
     long countByStatus(ProjectStatus status);
     // Finds the most recently updated active project for a specific supervisor
     Optional<Project> findFirstBySupervisorIdAndStatusOrderByUpdatedAtDesc(

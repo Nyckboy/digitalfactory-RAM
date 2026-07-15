@@ -8,6 +8,7 @@ import com.digitalfactory.platform.dto.response.PageResponse;
 import com.digitalfactory.platform.dto.response.ProjectResponse;
 import com.digitalfactory.platform.dto.response.SupervisorOverviewResponse;
 import com.digitalfactory.platform.dto.response.TaskResponse;
+import com.digitalfactory.platform.dto.response.TeamDirectoryProjectDto;
 import com.digitalfactory.platform.service.CommentService;
 import com.digitalfactory.platform.service.SupervisorService;
 import jakarta.validation.Valid;
@@ -105,5 +106,13 @@ public class SupervisorController {
     @GetMapping("/dashboard/ongoing-tasks")
     public ResponseEntity<List<TaskResponse>> getOngoingTasks(Principal principal) {
         return ResponseEntity.ok(supervisorService.getDashboardOngoingTasks(principal.getName()));
+    }
+
+    @GetMapping("/team-directory")
+    public ResponseEntity<List<TeamDirectoryProjectDto>> getTeamDirectory(
+            Principal principal,
+            @RequestParam(required = false) String search
+    ) {
+        return ResponseEntity.ok(supervisorService.getTeamDirectory(principal.getName(), search));
     }
 }

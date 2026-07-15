@@ -6,6 +6,7 @@ import com.digitalfactory.platform.dto.response.FeaturedProjectDto;
 import com.digitalfactory.platform.dto.response.ProjectResponse;
 import com.digitalfactory.platform.dto.response.SupervisorOverviewResponse;
 import com.digitalfactory.platform.dto.response.TaskResponse;
+import com.digitalfactory.platform.dto.response.TeamDirectoryProjectDto;
 import com.digitalfactory.platform.dto.response.UserResponse;
 import com.digitalfactory.platform.model.Project;
 import com.digitalfactory.platform.model.Task;
@@ -201,7 +202,7 @@ public class SupervisorService {
         User supervisor = userRepository.findByEmail(supervisorEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
 
-        // We only want TODO or IN_PROGRESS tasks. We fetch the top 4 closest to their deadline.
+        // We only want TO DO or IN_PROGRESS tasks. We fetch the top 4 closest to their deadline.
         List<TaskStatus> ongoingStatuses = List.of(TaskStatus.TODO, TaskStatus.IN_PROGRESS);
         
         return taskRepository.findOngoingTasksForSupervisor(
@@ -209,5 +210,52 @@ public class SupervisorService {
                 ongoingStatuses, 
                 PageRequest.of(0, 4) // Limit to 4 cards for the UI
         ).stream().map(TaskResponse::fromEntity).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TeamDirectoryProjectDto> getTeamDirectory(String supervisorEmail, String search) {
+        User supervisor = userRepository.findByEmail(supervisorEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
+
+        // Fetch all projects managed by this supervisor
+        List<Project> projects = projectRepository.findBySupervisorId(supervisor.getId());
+
+        return projects.stream()
+                // Filter by search term (matches project title OR intern name/email)
+                .filter(project -> matchesSearch(project, search))
+                .map(project -> {
+                    List<UserResponse> internResponses = project.getInterns().stream()
+                            .map(UserResponse::fromEntity)
+                            .toList();
+
+                    return TeamDirectoryProjectDto.builder()
+                            .id(project.getId())
+                            .title(project.getTitle())
+                            .internCount(internResponses.size())
+                            .interns(internResponses)
+                            .build();
+                })
+                .toList();
+    }
+
+    // Helper method for the UI Search Bar
+    private boolean matchesSearch(Project project, String search) {
+        if (search == null || search.trim().isEmpty()) {
+            return true;
+        }
+        
+        String query = search.toLowerCase();
+        
+        // 1. Check if the project title matches
+        if (project.getTitle().toLowerCase().contains(query)) {
+            return true;
+        }
+        
+        // 2. Check if any intern's name or email matches
+        return project.getInterns().stream().anyMatch(intern -> 
+            intern.getFirstName().toLowerCase().contains(query) ||
+            intern.getLastName().toLowerCase().contains(query) ||
+            intern.getEmail().toLowerCase().contains(query)
+        );
     }
 }
