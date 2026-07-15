@@ -6,6 +6,7 @@ import com.digitalfactory.platform.dto.request.TaskUpdateRequest;
 import com.digitalfactory.platform.dto.response.MessageResponse;
 import com.digitalfactory.platform.dto.response.PageResponse;
 import com.digitalfactory.platform.dto.response.ProjectResponse;
+import com.digitalfactory.platform.dto.response.SupervisorOverviewResponse;
 import com.digitalfactory.platform.dto.response.TaskResponse;
 import com.digitalfactory.platform.service.CommentService;
 import com.digitalfactory.platform.service.SupervisorService;
@@ -93,5 +94,10 @@ public class SupervisorController {
             @Valid @RequestBody CommentCreateRequest request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addComment(principal.getName(), taskId, request));
+    }
+
+    @GetMapping("/dashboard/overview")
+    public ResponseEntity<SupervisorOverviewResponse> getDashboardOverview(Principal principal) {
+        return ResponseEntity.ok(supervisorService.getDashboardOverview(principal.getName()));
     }
 }

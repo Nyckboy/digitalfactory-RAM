@@ -2,11 +2,16 @@ package com.digitalfactory.platform.service;
 
 import com.digitalfactory.platform.dto.request.TaskCreateRequest;
 import com.digitalfactory.platform.dto.request.TaskUpdateRequest;
+import com.digitalfactory.platform.dto.response.FeaturedProjectDto;
 import com.digitalfactory.platform.dto.response.ProjectResponse;
+import com.digitalfactory.platform.dto.response.SupervisorOverviewResponse;
 import com.digitalfactory.platform.dto.response.TaskResponse;
+import com.digitalfactory.platform.dto.response.UserResponse;
 import com.digitalfactory.platform.model.Project;
 import com.digitalfactory.platform.model.Task;
 import com.digitalfactory.platform.model.User;
+import com.digitalfactory.platform.model.enums.ProjectStatus;
+import com.digitalfactory.platform.model.enums.TaskStatus;
 import com.digitalfactory.platform.repository.ProjectRepository;
 import com.digitalfactory.platform.repository.TaskRepository;
 import com.digitalfactory.platform.repository.UserRepository;
@@ -137,5 +142,56 @@ public class SupervisorService {
         }
 
         taskRepository.delete(task);
+    }
+
+    @Transactional(readOnly = true)
+    public SupervisorOverviewResponse getDashboardOverview(String supervisorEmail) {
+        User supervisor = userRepository.findByEmail(supervisorEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
+
+        // 1. Get the "Active Issues" (Tasks pending review)
+        long tasksPendingReview = taskRepository.countByProjectSupervisorIdAndStatus(
+                supervisor.getId(), 
+                TaskStatus.IN_REVIEW
+        );
+
+        // 2. Find the featured project (most recently active)
+        var featuredProjectOpt = projectRepository.findFirstBySupervisorIdAndStatusOrderByUpdatedAtDesc(
+                supervisor.getId(), 
+                ProjectStatus.ACTIVE
+        );
+
+        FeaturedProjectDto featuredProjectDto = null;
+
+        if (featuredProjectOpt.isPresent()) {
+            Project project = featuredProjectOpt.get();
+            
+            // Calculate Progress Percentage
+            long totalTasks = taskRepository.countByProjectId(project.getId());
+            long completedTasks = taskRepository.countByProjectIdAndStatus(project.getId(), TaskStatus.COMPLETED);
+            
+            int progress = 0;
+            if (totalTasks > 0) {
+                progress = (int) (((double) completedTasks / totalTasks) * 100);
+            }
+
+            // Map team members
+            var teamMembers = project.getInterns().stream()
+                    .map(UserResponse::fromEntity)
+                    .toList();
+
+            featuredProjectDto = FeaturedProjectDto.builder()
+                    .id(project.getId())
+                    .title(project.getTitle())
+                    .description(project.getDescription())
+                    .progressPercentage(progress)
+                    .teamMembers(teamMembers)
+                    .build();
+        }
+
+        return SupervisorOverviewResponse.builder()
+                .featuredProject(featuredProjectDto)
+                .actionRequiredTasks(tasksPendingReview)
+                .build();
     }
 }
