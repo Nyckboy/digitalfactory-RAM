@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +27,27 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     List<Task> findOngoingTasksForSupervisor(
             @Param("supervisorId") UUID supervisorId,
             @Param("statuses") List<TaskStatus> statuses,
-            org.springframework.data.domain.Pageable pageable
+            Pageable pageable
+    );
+
+    // 1. Count tasks by assigned user and status (for COMPLETED)
+    long countByAssignedToIdAndStatus(UUID internId, TaskStatus status);
+
+    // 2. Count active tasks (everything EXCEPT completed)
+    long countByAssignedToIdAndStatusNot(UUID internId, TaskStatus status);
+
+    // 3. Count tasks due between now and X days from now
+    long countByAssignedToIdAndStatusNotAndDeadlineBetween(
+            UUID internId, 
+            TaskStatus status, 
+            LocalDateTime startDate, 
+            LocalDateTime endDate
+    );
+
+    // 4. Fetch the urgent tasks for the widget
+    List<Task> findByAssignedToIdAndStatusNotOrderByDeadlineAsc(
+            UUID internId, 
+            TaskStatus status, 
+            Pageable pageable
     );
 }

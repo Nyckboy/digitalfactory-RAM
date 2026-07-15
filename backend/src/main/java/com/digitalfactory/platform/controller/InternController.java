@@ -2,6 +2,7 @@ package com.digitalfactory.platform.controller;
 
 import com.digitalfactory.platform.dto.request.CommentCreateRequest;
 import com.digitalfactory.platform.dto.request.TaskStatusUpdateRequest;
+import com.digitalfactory.platform.dto.response.InternDashboardResponse;
 import com.digitalfactory.platform.dto.response.PageResponse;
 import com.digitalfactory.platform.dto.response.TaskResponse;
 import com.digitalfactory.platform.service.CommentService;
@@ -56,5 +57,10 @@ public class InternController {
             @Valid @RequestBody CommentCreateRequest request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addComment(principal.getName(), taskId, request));
+    }
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<InternDashboardResponse> getDashboardOverview(Principal principal) {
+        return ResponseEntity.ok(internService.getDashboardOverview(principal.getName()));
     }
 }
