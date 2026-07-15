@@ -63,3 +63,23 @@ export interface ActivityLog {
   target: string;
   timestamp: string;
 }
+
+export interface DashboardOverview {
+  featuredProject: FeaturedProject | null;
+  actionRequiredTasks: number;
+}
+
+export interface FeaturedProject {
+  id: string;
+  title: string;
+  description: string;
+  progressPercentage: number;
+  teamMembers: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+    isActive: boolean;
+  }>;
+}
