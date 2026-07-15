@@ -1,218 +1,222 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 import { internService } from "../../lib/internApi";
-import type { TaskDTO, TaskStatus } from "../../types/api";
-import { SubmissionModal } from "./SubmissionModal";
-import { TaskCommentsModal } from "../../components/shared/TaskCommentsModal";
+import type { InternDashboardOverview } from "../../types/api";
+
+// Helper to format the task status
+const formatStatus = (status: string) => {
+  if (status === "IN_PROGRESS") return "In Progress";
+  if (status === "TODO") return "To Do";
+  return status.replace("_", " ");
+};
+
+// Helper to calculate deadline display and colors
+const formatDeadline = (deadlineString: string) => {
+  const date = new Date(deadlineString);
+  const now = new Date();
+
+  const dateDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.round(
+    (dateDay.getTime() - nowDay.getTime()) / (1000 * 3600 * 24),
+  );
+
+  if (date < now) {
+    return { text: "Overdue", colorClass: "text-error", icon: "warning" };
+  }
+  if (diffDays === 1) {
+    return {
+      text: "Due Tomorrow",
+      colorClass: "text-secondary",
+      icon: "calendar_today",
+    };
+  }
+  if (diffDays === 0) {
+    return {
+      text: "Due Today",
+      colorClass: "text-secondary",
+      icon: "calendar_today",
+    };
+  }
+
+  const formattedDate = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  return {
+    text: formattedDate,
+    colorClass: "text-secondary",
+    icon: "calendar_today",
+  };
+};
 
 export const InternDashboard = () => {
-  const { user, logout } = useAuthStore();
-  const [tasks, setTasks] = useState<TaskDTO[]>([]);
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
+
+  const [overview, setOverview] = useState<InternDashboardOverview | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
 
-  // Modal State
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<TaskDTO | null>(null);
+  useEffect(() => {
+    const fetchOverview = async () => {
+      try {
+        const data = await internService.getDashboardOverview();
+        setOverview(data);
+      } catch (error) {
+        console.error("Failed to fetch intern dashboard overview:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Chat Modal State
-  const [chatModalOpen, setChatModalOpen] = useState(false);
-  const [chatTask, setChatTask] = useState<TaskDTO | null>(null);
-
-  const fetchTasks = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await internService.getMyTasks(0, 50);
-      setTasks(response.content);
-    } catch (error) {
-      console.error("Failed to fetch intern tasks:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    fetchOverview();
   }, []);
 
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
-
-  const openChat = (task: TaskDTO) => {
-    setChatTask(task);
-    setChatModalOpen(true);
-  };
-
-  // 1. Independent Status Change Handler
-  const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
-    // Optimistic UI update for snappy UX
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
-    );
-    try {
-      await internService.updateTask(taskId, { status: newStatus });
-    } catch (error) {
-      console.error("Failed to update task status:", error);
-      fetchTasks(); // Revert on failure (e.g., if CORS blocks it)
-    }
-  };
-
-  // 2. Independent URL Submission Handler
-  const handleUrlSubmit = async (taskId: string, url: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task) return;
-
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, submissionUrl: url } : t)),
-    );
-    try {
-      await internService.updateTask(taskId, {
-        status: task.status,
-        submissionUrl: url,
-      });
-    } catch (error) {
-      console.error("Failed to update task URL:", error);
-      fetchTasks();
-    }
-  };
-
-  const openUrlModal = (task: TaskDTO) => {
-    setSelectedTask(task);
-    setModalOpen(true);
-  };
-
-  const getTasksByStatus = (status: TaskStatus) =>
-    tasks.filter((t) => t.status === status);
-
-  const columns: { title: string; status: TaskStatus; bgColor: string }[] = [
-    { title: "To Do", status: "TODO", bgColor: "bg-gray-100" },
-    { title: "In Progress", status: "IN_PROGRESS", bgColor: "bg-blue-50" },
-    { title: "In Review", status: "IN_REVIEW", bgColor: "bg-yellow-50" },
-    { title: "COMPLETED", status: "COMPLETED", bgColor: "bg-green-50" },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <SubmissionModal
-        isOpen={modalOpen}
-        task={selectedTask}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleUrlSubmit}
-      />
-
-      <TaskCommentsModal
-        isOpen={chatModalOpen}
-        task={chatTask}
-        onClose={() => setChatModalOpen(false)}
-        fetchComments={internService.getTaskComments}
-        postComment={internService.addTaskComment}
-      />
-
-      <div className="flex justify-between items-center mb-8">
+    <>
+      <div className="flex justify-between items-end mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome, {user?.firstName}
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Track your tasks and submit your deliverables.
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-on-background mb-1 tracking-tight">
+            Dashboard Overview
+          </h2>
+          <p className="text-lg text-secondary">Welcome, {user?.firstName}.</p>
         </div>
         <button
-          onClick={logout}
-          className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+          onClick={() => navigate("/intern/tasks")}
+          className="bg-primary-container text-on-primary py-2 px-4 rounded-lg text-sm font-medium hover:bg-primary transition-colors shadow-sm"
         >
-          Sign Out
+          Go to Sprint Board
         </button>
       </div>
 
-      {isLoading ? (
-        <div className="py-10 text-center text-gray-500">
-          Loading your tasks...
-        </div>
-      ) : (
-        <div className="flex gap-6 overflow-x-auto pb-4 h-[calc(100vh-160px)]">
-          {columns.map((col) => (
-            <div
-              key={col.status}
-              className={`shrink-0 w-80 rounded-xl p-4 flex flex-col ${col.bgColor}`}
-            >
-              <h2 className="font-semibold text-gray-700 mb-4 flex justify-between items-center">
-                {col.title}
-                <span className="text-xs bg-white px-2 py-1 rounded-full shadow-sm">
-                  {getTasksByStatus(col.status).length}
-                </span>
-              </h2>
-
-              <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                {getTasksByStatus(col.status).map((task) => (
-                  <div
-                    key={task.id}
-                    className="bg-white p-4 rounded-lg shadow-sm border border-gray-100"
-                  >
-                    <h3 className="font-medium text-gray-900 text-sm mb-2">
-                      {task.title}
-                    </h3>
-
-                    {/* The new distinct "Attach Link" button */}
-                    <div className="mb-3">
-                      {task.submissionUrl ? (
-                        <div className="flex items-center justify-between text-xs">
-                          <a
-                            href={task.submissionUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline truncate max-w-37.5"
-                          >
-                            View Link ↗
-                          </a>
-                          <button
-                            onClick={() => openUrlModal(task)}
-                            className="text-gray-400 hover:text-gray-700"
-                          >
-                            Edit
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => openUrlModal(task)}
-                          className="text-xs text-blue-600 hover:text-blue-800 font-medium bg-blue-50 px-2 py-1 rounded"
-                        >
-                          + Attach Link
-                        </button>
-                      )}
-                      <button 
-                        onClick={() => openChat(task)}
-                        className="text-xs text-gray-500 hover:text-blue-600 flex items-center gap-1"
-                      >
-                        💬 Chat
-                      </button>
-                    </div>
-
-                    <div className="mt-auto pt-3 border-t border-gray-50">
-                      <select
-                        value={task.status}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            task.id,
-                            e.target.value as TaskStatus,
-                          )
-                        }
-                        className="w-full text-xs border-gray-200 rounded px-2 py-1.5 focus:ring-blue-500 outline-none bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                      >
-                        <option value="TODO">To Do</option>
-                        <option value="IN_PROGRESS">In Progress</option>
-                        <option value="IN_REVIEW">In Review</option>
-                        <option value="COMPLETED">COMPLETED</option>
-                      </select>
-                    </div>
-                  </div>
-                ))}
-                {getTasksByStatus(col.status).length === 0 && (
-                  <div className="text-center text-xs text-gray-400 py-4">
-                    No tasks
-                  </div>
-                )}
-              </div>
+      {/* KPI Cards (Now Active) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-container-highest transition-all duration-300 hover:shadow-md">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2.5 bg-primary-fixed rounded-lg text-primary-container">
+              <span className="material-symbols-outlined text-[20px]">
+                checklist
+              </span>
             </div>
-          ))}
+          </div>
+          <h3 className="text-sm text-secondary mb-1">Assigned Tasks</h3>
+          <p className="text-3xl font-bold text-on-surface">
+            {isLoading ? "..." : overview?.assignedTasks || 0}
+          </p>
         </div>
-      )}
-    </div>
+
+        <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-container-highest transition-all duration-300 hover:shadow-md">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2.5 bg-tertiary-fixed rounded-lg text-tertiary">
+              <span className="material-symbols-outlined text-[20px]">
+                task_alt
+              </span>
+            </div>
+          </div>
+          <h3 className="text-sm text-secondary mb-1">
+            Completed Deliverables
+          </h3>
+          <p className="text-3xl font-bold text-on-surface">
+            {isLoading ? "..." : overview?.completedDeliverables || 0}
+          </p>
+        </div>
+
+        <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-surface-container-highest transition-all duration-300 hover:shadow-md">
+          <div className="flex justify-between items-start mb-4">
+            <div className="p-2.5 bg-error-container/50 rounded-lg text-error">
+              <span className="material-symbols-outlined text-[20px]">
+                schedule
+              </span>
+            </div>
+          </div>
+          <h3 className="text-sm text-secondary mb-1">Upcoming Deadlines</h3>
+          <p className="text-3xl font-bold text-on-surface">
+            {isLoading ? "..." : overview?.upcomingDeadlines || 0}
+          </p>
+        </div>
+      </div>
+
+      {/* Urgent Tasks Section */}
+      <div className="mt-12">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h3 className="text-2xl font-bold text-on-surface">Urgent Tasks</h3>
+            <p className="text-sm text-secondary mt-1">
+              Tasks requiring your immediate attention.
+            </p>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="py-12 text-center text-secondary bg-surface-container-lowest rounded-xl border border-surface-container-highest">
+            Loading urgent tasks...
+          </div>
+        ) : !overview?.urgentTasks || overview.urgentTasks.length === 0 ? (
+          <div className="py-12 text-center text-secondary bg-surface-container-lowest rounded-xl border border-surface-container-highest flex flex-col items-center">
+            <span className="material-symbols-outlined text-4xl mb-3 text-tertiary opacity-80">
+              celebration
+            </span>
+            <p className="text-on-surface font-semibold mb-1">
+              You're all caught up!
+            </p>
+            <p className="text-sm">
+              No urgent tasks currently assigned to you.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {overview.urgentTasks.map((task) => {
+              const deadlineInfo = formatDeadline(task.deadline);
+              return (
+                <div
+                  key={task.id}
+                  className="bg-surface-container-lowest rounded-xl p-5 shadow-[0px_30px_40px_rgba(0,0,0,0.04)] border border-error/20 flex flex-col hover:-translate-y-1 hover:shadow-md transition-all duration-300"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="px-2 py-1 bg-surface-container-low text-secondary rounded text-xs font-semibold uppercase tracking-wider">
+                      {formatStatus(task.status)}
+                    </div>
+                    <span className="material-symbols-outlined text-error text-[20px]">
+                      priority_high
+                    </span>
+                  </div>
+
+                  <h4 className="text-lg font-bold text-on-surface mb-2 leading-snug">
+                    {task.title}
+                  </h4>
+                  <p className="text-sm text-secondary mb-6 line-clamp-2 grow">
+                    {task.description}
+                  </p>
+
+                  <div className="flex justify-between items-center mt-auto pt-4 border-t border-surface-variant/40">
+                    <span
+                      className={`text-xs font-bold flex items-center gap-1.5 ${deadlineInfo.colorClass}`}
+                    >
+                      <span className="material-symbols-outlined text-[16px]">
+                        {deadlineInfo.icon}
+                      </span>
+                      {deadlineInfo.text}
+                    </span>
+
+                    <button
+                      onClick={() => navigate("/intern/tasks")}
+                      className="text-primary-container font-semibold text-xs hover:underline flex items-center gap-1"
+                    >
+                      View in Board
+                      <span className="material-symbols-outlined text-[14px]">
+                        arrow_forward
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </>
   );
 };

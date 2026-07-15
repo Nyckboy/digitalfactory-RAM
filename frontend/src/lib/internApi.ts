@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { CommentDTO, PaginatedResponse, TaskDTO, TaskStatus } from '../types/api';
+import type { CommentDTO, InternDashboardOverview, PaginatedResponse, TaskDTO, TaskStatus } from '../types/api';
 
 export const internService = {
   getMyTasks: async (page = 0, size = 50) => {
@@ -21,5 +21,9 @@ export const internService = {
   addTaskComment: async (taskId: string, content: string) => {
     const response = await api.post<CommentDTO>(`/intern/tasks/${taskId}/comments`, { content });
     return response.data;
-  }
+  },
+  getDashboardOverview: async (): Promise<InternDashboardOverview> => {
+    const response = await api.get('/intern/dashboard');
+    return response.data;
+  },
 };

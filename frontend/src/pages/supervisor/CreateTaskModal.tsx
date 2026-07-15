@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-  supervisorService,
-  type CreateTaskPayload,
-} from "../../lib/supervisorApi";
+import { supervisorService, type CreateTaskPayload } from "../../lib/supervisorApi";
 import type { ProjectDTO } from "../../types/api";
 
 interface CreateTaskModalProps {
@@ -11,11 +8,7 @@ interface CreateTaskModalProps {
   project: ProjectDTO | null;
 }
 
-export const CreateTaskModal = ({
-  isOpen,
-  onClose,
-  project,
-}: CreateTaskModalProps) => {
+export const CreateTaskModal = ({ isOpen, onClose, project }: CreateTaskModalProps) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -42,26 +35,17 @@ export const CreateTaskModal = ({
     setIsLoading(true);
 
     try {
-      // Format deadline to match backend expectation (e.g., adding T00:00:00 if just a date)
-      // If using datetime-local input, it already formats close to ISO 8601
       const payload: CreateTaskPayload = {
         ...formData,
         projectId: project.id,
-        // Ensure standard ISO format if needed, though datetime-local gives YYYY-MM-DDTHH:mm
         deadline: new Date(formData.deadline).toISOString(),
       };
 
       await supervisorService.createTask(payload);
       setSuccessMsg("Task created successfully!");
 
-      // Reset form and close after a short delay
       setTimeout(() => {
-        setFormData({
-          title: "",
-          description: "",
-          assignedToId: "",
-          deadline: "",
-        });
+        setFormData({ title: "", description: "", assignedToId: "", deadline: "" });
         setSuccessMsg(null);
         onClose();
       }, 1500);
@@ -73,125 +57,55 @@ export const CreateTaskModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="w-full max-w-lg p-6 bg-white rounded-xl shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Create Task</h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            ✕
+    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="w-full max-w-lg p-6 bg-surface-container-lowest border border-surface-container-highest rounded-xl shadow-2xl font-sans">
+        
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-bold text-on-surface">Assign Task</h2>
+          <button onClick={onClose} className="text-secondary hover:text-on-surface transition-colors">
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
-
-        <p className="text-sm text-gray-600 mb-6">
-          Project:{" "}
-          <span className="font-semibold text-gray-900">{project.title}</span>
+        
+        <p className="text-sm text-secondary mb-6">
+          Project: <span className="font-bold text-primary-container">{project.title}</span>
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
-              {error}
-            </div>
-          )}
-          {successMsg && (
-            <div className="p-3 text-sm text-green-700 bg-green-50 rounded-md">
-              {successMsg}
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {error && <div className="p-3 text-sm text-error bg-error-container rounded-md border border-outline-variant">{error}</div>}
+          {successMsg && <div className="p-3 text-sm text-tertiary bg-tertiary-fixed/50 rounded-md border border-tertiary-fixed">{successMsg}</div>}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Task Title
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              className="w-full px-3 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="e.g., Design Login Screen"
-            />
+            <label className="block text-xs font-semibold text-on-surface mb-1">Task Title</label>
+            <input type="text" required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full px-3 py-3 border border-outline-variant rounded-lg bg-[#F1F3F5] text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors text-sm" placeholder="e.g., Design Login Screen" />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <textarea
-              required
-              rows={3}
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              className="w-full px-3 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-              placeholder="What needs to be done?"
-            />
+            <label className="block text-xs font-semibold text-on-surface mb-1">Description</label>
+            <textarea required rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full px-3 py-3 border border-outline-variant rounded-lg bg-[#F1F3F5] text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none resize-none transition-colors text-sm" placeholder="What needs to be done?" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Assign To
-              </label>
-              <select
-                required
-                value={formData.assignedToId}
-                onChange={(e) =>
-                  setFormData({ ...formData, assignedToId: e.target.value })
-                }
-                className="w-full px-3 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
-              >
-                <option value="" disabled>
-                  Select Intern
-                </option>
+              <label className="block text-xs font-semibold text-on-surface mb-1">Assign To</label>
+              <select required value={formData.assignedToId} onChange={(e) => setFormData({ ...formData, assignedToId: e.target.value })} className="w-full px-3 py-3 border border-outline-variant rounded-lg bg-[#F1F3F5] text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors text-sm">
+                <option value="" disabled>Select Intern</option>
                 {project.interns.map((intern) => (
-                  <option key={intern.id} value={intern.id}>
-                    {intern.firstName} {intern.lastName}
-                  </option>
+                  <option key={intern.id} value={intern.id}>{intern.firstName} {intern.lastName}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Deadline
-              </label>
-              <input
-                type="datetime-local"
-                required
-                value={formData.deadline}
-                onChange={(e) =>
-                  setFormData({ ...formData, deadline: e.target.value })
-                }
-                className="w-full px-3 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-              />
+              <label className="block text-xs font-semibold text-on-surface mb-1">Deadline</label>
+              <input type="datetime-local" required value={formData.deadline} onChange={(e) => setFormData({ ...formData, deadline: e.target.value })} className="w-full px-3 py-3 border border-outline-variant rounded-lg bg-[#F1F3F5] text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors text-sm" />
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading || successMsg !== null}
-              className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition ${
-                isLoading || successMsg
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
-            >
-              {isLoading ? "Creating..." : "Assign Task"}
+          <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-surface-container-highest">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-secondary hover:text-on-surface transition">Cancel</button>
+            <button type="submit" disabled={isLoading || successMsg !== null} className={`px-6 py-2 text-sm font-medium text-on-primary rounded-lg shadow-sm transition-colors ${isLoading || successMsg ? "bg-primary-container/70 cursor-not-allowed" : "bg-primary-container hover:bg-primary"}`}>
+              {isLoading ? "Processing..." : "Assign Task"}
             </button>
           </div>
         </form>

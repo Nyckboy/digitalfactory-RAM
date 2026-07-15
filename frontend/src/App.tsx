@@ -5,21 +5,23 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { SupervisorDashboard } from './pages/supervisor/SupervisorDashboard';
 import { ProjectTaskBoard } from './pages/supervisor/ProjectTaskBoard';
 import { InternDashboard } from './pages/intern/InternDashboard';
-
-// Placeholder components (we will build these out later)
+import { TeamView } from './pages/admin/TeamView';
+import { ProjectsView } from './pages/admin/ProjectsView';
+import { AdminLayout } from './pages/admin/AdminLayout';
+import { SupervisorLayout } from './pages/supervisor/SupervisorLayout';
+import { SupervisorProjectsView } from './pages/supervisor/SupervisorProjectsView';
+import { SupervisorTeamView } from './pages/supervisor/SupervisorTeamView';
+import { InternLayout } from './pages/intern/InternLayout';
+import { InternTaskBoard } from './pages/intern/InternTaskBoard';
 
 const router = createBrowserRouter([
-  // Public Route
   {
     path: '/login',
     element: <Login />,
   },
-  
-  // Protected Routes
   {
-    element: <ProtectedRoute />, // Base protection: Must be logged in
+    element: <ProtectedRoute />, 
     children: [
-      // Base path redirects to role-specific dashboard
       {
         path: '/',
         element: <Navigate to="/login" replace />, 
@@ -28,28 +30,49 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute allowedRoles={['SUPER_ADMIN']} />,
         children: [
-          { path: '/admin', element: <AdminDashboard /> },
+          {
+            path: '/admin',
+            element: <AdminLayout />, // <-- Layout wraps the nested routes
+            children: [
+              { index: true, element: <AdminDashboard /> }, // Renders at /admin
+              { path: 'projects', element: <ProjectsView /> }, // Renders at /admin/projects
+              { path: 'team', element: <TeamView /> }, // Renders at /admin/team
+            ]
+          },
         ],
       },
       // Supervisor Routes
       {
         element: <ProtectedRoute allowedRoles={['SUPERVISOR']} />,
         children: [
-          { path: '/supervisor', element: <SupervisorDashboard /> },
-          { path: '/supervisor/projects/:projectId/board', element: <ProjectTaskBoard /> },
+          {
+            path: '/supervisor',
+            element: <SupervisorLayout />,
+            children: [
+              { index: true, element: <SupervisorDashboard /> },
+              { path: 'projects', element: <SupervisorProjectsView /> },
+              { path: 'team', element: <SupervisorTeamView /> },
+              { path: 'projects/:projectId/board', element: <ProjectTaskBoard /> },
+            ]
+          },
         ],
       },
       // Intern Routes
       {
         element: <ProtectedRoute allowedRoles={['INTERN']} />,
         children: [
-          { path: '/intern', element: <InternDashboard /> },
+          {
+            path: '/intern',
+            element: <InternLayout />,
+            children: [
+              { index: true, element: <InternDashboard /> }, 
+              { path: 'tasks', element: <InternTaskBoard /> },
+            ]
+          },
         ],
       },
     ],
   },
-  
-  // Catch-all route for 404s
   {
     path: '*',
     element: <div className="p-10 text-center text-red-500">404 - Page Not Found</div>,

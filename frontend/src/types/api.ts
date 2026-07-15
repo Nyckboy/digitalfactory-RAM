@@ -49,3 +49,82 @@ export interface CommentDTO {
   authorName: string;
   authorRole: string; // 'SUPERVISOR' | 'INTERN'
 }
+
+export interface DashboardStats {
+  activeProjects: number;
+  teamMembers: number;
+  tasksCompleted: number;
+}
+
+export interface ActivityLog {
+  id: string;
+  actorName: string;
+  action: string;
+  target: string;
+  timestamp: string;
+}
+
+export interface DashboardOverview {
+  featuredProject: FeaturedProject | null;
+  actionRequiredTasks: number;
+}
+
+export interface FeaturedProject {
+  id: string;
+  title: string;
+  description: string;
+  progressPercentage: number;
+  teamMembers: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+    isActive: boolean;
+  }>;
+}
+
+export interface OngoingTask {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  deadline: string;
+  assignedTo: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+}
+
+export interface TeamDirectoryIntern {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+}
+
+export interface TeamDirectoryProject {
+  id: string;
+  title: string;
+  internCount: number;
+  interns: TeamDirectoryIntern[];
+}
+
+export interface UrgentTask {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  deadline: string;
+  projectId: string;
+}
+
+export interface InternDashboardOverview {
+  assignedTasks: number;
+  completedDeliverables: number;
+  upcomingDeadlines: number;
+  urgentTasks: UrgentTask[];
+}
