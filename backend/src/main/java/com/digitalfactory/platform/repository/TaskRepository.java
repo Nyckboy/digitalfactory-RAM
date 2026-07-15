@@ -6,6 +6,10 @@ import com.digitalfactory.platform.model.enums.TaskStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 import java.util.UUID;
 
 public interface TaskRepository extends JpaRepository<Task, UUID> {
@@ -18,4 +22,10 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     long countByProjectId(UUID projectId);
     // Counts how many tasks across ALL the supervisor's projects need review
     long countByProjectSupervisorIdAndStatus(UUID supervisorId, TaskStatus status);
+    @Query("SELECT t FROM Task t WHERE t.project.supervisor.id = :supervisorId AND t.status IN :statuses ORDER BY t.deadline ASC")
+    List<Task> findOngoingTasksForSupervisor(
+            @Param("supervisorId") UUID supervisorId,
+            @Param("statuses") List<TaskStatus> statuses,
+            org.springframework.data.domain.Pageable pageable
+    );
 }

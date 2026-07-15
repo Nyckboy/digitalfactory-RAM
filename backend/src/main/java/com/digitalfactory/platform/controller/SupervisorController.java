@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -99,5 +100,10 @@ public class SupervisorController {
     @GetMapping("/dashboard/overview")
     public ResponseEntity<SupervisorOverviewResponse> getDashboardOverview(Principal principal) {
         return ResponseEntity.ok(supervisorService.getDashboardOverview(principal.getName()));
+    }
+
+    @GetMapping("/dashboard/ongoing-tasks")
+    public ResponseEntity<List<TaskResponse>> getOngoingTasks(Principal principal) {
+        return ResponseEntity.ok(supervisorService.getDashboardOngoingTasks(principal.getName()));
     }
 }

@@ -17,6 +17,7 @@ import com.digitalfactory.platform.repository.TaskRepository;
 import com.digitalfactory.platform.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -193,5 +194,20 @@ public class SupervisorService {
                 .featuredProject(featuredProjectDto)
                 .actionRequiredTasks(tasksPendingReview)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TaskResponse> getDashboardOngoingTasks(String supervisorEmail) {
+        User supervisor = userRepository.findByEmail(supervisorEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
+
+        // We only want TODO or IN_PROGRESS tasks. We fetch the top 4 closest to their deadline.
+        List<TaskStatus> ongoingStatuses = List.of(TaskStatus.TODO, TaskStatus.IN_PROGRESS);
+        
+        return taskRepository.findOngoingTasksForSupervisor(
+                supervisor.getId(), 
+                ongoingStatuses, 
+                PageRequest.of(0, 4) // Limit to 4 cards for the UI
+        ).stream().map(TaskResponse::fromEntity).toList();
     }
 }
