@@ -96,3 +96,19 @@ export interface OngoingTask {
     lastName: string;
   };
 }
+
+export interface TeamDirectoryIntern {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+}
+
+export interface TeamDirectoryProject {
+  id: string;
+  title: string;
+  internCount: number;
+  interns: TeamDirectoryIntern[];
+}
