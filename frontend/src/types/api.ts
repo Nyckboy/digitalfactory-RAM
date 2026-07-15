@@ -83,3 +83,16 @@ export interface FeaturedProject {
     isActive: boolean;
   }>;
 }
+
+export interface OngoingTask {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  deadline: string;
+  assignedTo: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+}

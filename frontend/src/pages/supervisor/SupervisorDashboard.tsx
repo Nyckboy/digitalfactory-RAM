@@ -2,14 +2,64 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 import { supervisorService } from "../../lib/supervisorApi";
-import type { DashboardOverview } from "../../types/api";
+import type { DashboardOverview, OngoingTask } from "../../types/api";
+
+// Helper to format the task status
+const formatStatus = (status: string) => {
+  if (status === "IN_PROGRESS") return "In Progress";
+  if (status === "TODO") return "To Do";
+  return status.replace("_", " ");
+};
+
+// Helper to calculate deadline display and colors
+const formatDeadline = (deadlineString: string) => {
+  const date = new Date(deadlineString);
+  const now = new Date();
+
+  // Normalize dates to midnight for accurate day comparison
+  const dateDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const nowDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.round(
+    (dateDay.getTime() - nowDay.getTime()) / (1000 * 3600 * 24),
+  );
+
+  if (date < now) {
+    return { text: "Overdue", colorClass: "text-error", icon: "warning" };
+  }
+  if (diffDays === 1) {
+    return {
+      text: "Due Tomorrow",
+      colorClass: "text-secondary",
+      icon: "calendar_today",
+    };
+  }
+  if (diffDays === 0) {
+    return {
+      text: "Due Today",
+      colorClass: "text-secondary",
+      icon: "calendar_today",
+    };
+  }
+
+  const formattedDate = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  return {
+    text: formattedDate,
+    colorClass: "text-secondary",
+    icon: "calendar_today",
+  };
+};
 
 export const SupervisorDashboard = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [ongoingTasks, setOngoingTasks] = useState<OngoingTask[]>([]);
+  const [isLoadingOverview, setIsLoadingOverview] = useState(true);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
 
   useEffect(() => {
     const fetchOverview = async () => {
@@ -19,11 +69,23 @@ export const SupervisorDashboard = () => {
       } catch (error) {
         console.error("Failed to fetch supervisor overview:", error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingOverview(false);
+      }
+    };
+
+    const fetchOngoingTasks = async () => {
+      try {
+        const data = await supervisorService.getOngoingTasks();
+        setOngoingTasks(data);
+      } catch (error) {
+        console.error("Failed to fetch ongoing tasks:", error);
+      } finally {
+        setIsLoadingTasks(false);
       }
     };
 
     fetchOverview();
+    fetchOngoingTasks();
   }, []);
 
   return (
@@ -58,7 +120,7 @@ export const SupervisorDashboard = () => {
           <div className="absolute inset-0 bg-linear-to-br from-surface-container-lowest to-surface-container-low opacity-50 z-0"></div>
 
           <div className="relative z-10 flex-1 flex flex-col">
-            {isLoading ? (
+            {isLoadingOverview ? (
               <div className="flex-1 flex items-center justify-center text-secondary py-10">
                 Loading project data...
               </div>
@@ -159,7 +221,6 @@ export const SupervisorDashboard = () => {
         <div className="md:col-span-4 bg-surface-container-lowest rounded-xl p-6 shadow-[0px_30px_40px_rgba(0,0,0,0.04)] border border-surface-container-highest flex flex-col justify-between transition-all duration-300 hover:shadow-md">
           <div>
             <div className="w-12 h-12 rounded-lg bg-tertiary-fixed flex items-center justify-center mb-4">
-              {/* Changed from bug_report to pending_actions */}
               <span className="material-symbols-outlined text-tertiary">
                 pending_actions
               </span>
@@ -169,7 +230,7 @@ export const SupervisorDashboard = () => {
             </h3>
             <div className="flex items-baseline gap-3">
               <span className="text-4xl font-bold text-on-surface">
-                {isLoading ? "..." : overview?.actionRequiredTasks || 0}
+                {isLoadingOverview ? "..." : overview?.actionRequiredTasks || 0}
               </span>
             </div>
           </div>
@@ -183,8 +244,8 @@ export const SupervisorDashboard = () => {
         </div>
       </div>
 
-      {/* Ongoing Tasks (WIP Section) */}
-      <div className="mt-12 opacity-40 pointer-events-none select-none">
+      {/* Ongoing Tasks (Now Active!) */}
+      <div className="mt-12">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-2xl font-bold text-on-surface">Ongoing Tasks</h3>
           <button className="text-secondary hover:text-on-surface transition-colors">
@@ -192,98 +253,61 @@ export const SupervisorDashboard = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card 1 */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 shadow-[0px_30px_40px_rgba(0,0,0,0.04)] border border-surface-variant/30 flex flex-col">
-            <div className="flex justify-between items-start mb-4">
-              <div className="px-2 py-1 bg-surface-container-low text-secondary rounded text-xs font-semibold uppercase tracking-wider">
-                UI/UX
-              </div>
-              <span className="material-symbols-outlined text-secondary text-[20px]">
-                bookmark_border
-              </span>
-            </div>
-            <h4 className="text-lg font-bold text-on-surface mb-2">
-              Design System Update
-            </h4>
-            <p className="text-sm text-secondary mb-6 line-clamp-2 grow">
-              Incorporate new tonal layering tokens into the React component
-              library.
-            </p>
-            <div className="flex justify-between items-center mt-auto">
-              <span className="text-xs font-semibold text-secondary flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">
-                  calendar_today
-                </span>
-                Due Tomorrow
-              </span>
-              <div className="w-6 h-6 rounded-full bg-surface-container-highest border border-surface-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant">
-                SJ
-              </div>
-            </div>
+        {isLoadingTasks ? (
+          <div className="text-center text-secondary py-10">
+            Loading ongoing tasks...
           </div>
+        ) : ongoingTasks.length === 0 ? (
+          <div className="text-center text-secondary py-10 bg-surface-container-lowest rounded-xl border border-surface-container-highest">
+            No ongoing tasks found.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {ongoingTasks.map((task) => {
+              const deadlineInfo = formatDeadline(task.deadline);
+              return (
+                <div
+                  key={task.id}
+                  className="bg-surface-container-lowest rounded-xl p-5 shadow-[0px_30px_40px_rgba(0,0,0,0.04)] border border-surface-variant/30 flex flex-col hover:-translate-y-1 hover:shadow-[0px_40px_50px_rgba(0,0,0,0.06)] transition-all duration-300"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="px-2 py-1 bg-surface-container-low text-secondary rounded text-xs font-semibold uppercase tracking-wider">
+                      {formatStatus(task.status)}
+                    </div>
+                    <span className="material-symbols-outlined text-secondary text-[20px]">
+                      bookmark_border
+                    </span>
+                  </div>
 
-          {/* Card 2 */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 shadow-[0px_30px_40px_rgba(0,0,0,0.04)] border border-surface-variant/30 flex flex-col">
-            <div className="flex justify-between items-start mb-4">
-              <div className="px-2 py-1 bg-surface-container-low text-secondary rounded text-xs font-semibold uppercase tracking-wider">
-                Backend
-              </div>
-              <span
-                className="material-symbols-outlined text-primary-container text-[20px]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                bookmark
-              </span>
-            </div>
-            <h4 className="text-lg font-bold text-on-surface mb-2">
-              Database Migration
-            </h4>
-            <p className="text-sm text-secondary mb-6 line-clamp-2 grow">
-              Move staging data to new production cluster during off-hours.
-            </p>
-            <div className="flex justify-between items-center mt-auto">
-              <span className="text-xs font-semibold text-error flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">
-                  warning
-                </span>
-                Overdue
-              </span>
-              <div className="w-6 h-6 rounded-full bg-surface-container-highest border border-surface-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant">
-                DC
-              </div>
-            </div>
-          </div>
+                  <h4 className="text-lg font-bold text-on-surface mb-2">
+                    {task.title}
+                  </h4>
+                  <p className="text-sm text-secondary mb-6 line-clamp-2 grow">
+                    {task.description}
+                  </p>
 
-          {/* Card 3 */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 shadow-[0px_30px_40px_rgba(0,0,0,0.04)] border border-surface-variant/30 flex flex-col">
-            <div className="flex justify-between items-start mb-4">
-              <div className="px-2 py-1 bg-surface-container-low text-secondary rounded text-xs font-semibold uppercase tracking-wider">
-                Marketing
-              </div>
-              <span className="material-symbols-outlined text-secondary text-[20px]">
-                bookmark_border
-              </span>
-            </div>
-            <h4 className="text-lg font-bold text-on-surface mb-2">
-              Q3 Campaign Assets
-            </h4>
-            <p className="text-sm text-secondary mb-6 line-clamp-2 grow">
-              Finalize banners and email templates for the upcoming launch.
-            </p>
-            <div className="flex justify-between items-center mt-auto">
-              <span className="text-xs font-semibold text-secondary flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px]">
-                  calendar_today
-                </span>
-                Oct 12
-              </span>
-              <div className="w-6 h-6 rounded-full bg-surface-container-highest border border-surface-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant">
-                MA
-              </div>
-            </div>
+                  <div className="flex justify-between items-center mt-auto">
+                    <span
+                      className={`text-xs font-semibold flex items-center gap-1.5 ${deadlineInfo.colorClass}`}
+                    >
+                      <span className="material-symbols-outlined text-[16px]">
+                        {deadlineInfo.icon}
+                      </span>
+                      {deadlineInfo.text}
+                    </span>
+                    <div
+                      className="w-6 h-6 rounded-full bg-surface-container-highest border border-surface-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant cursor-help"
+                      title={`${task.assignedTo.firstName} ${task.assignedTo.lastName}`}
+                    >
+                      {task.assignedTo.firstName[0].toUpperCase()}
+                      {task.assignedTo.lastName[0].toUpperCase()}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        </div>
+        )}
       </div>
     </>
   );

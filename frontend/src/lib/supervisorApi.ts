@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { CommentDTO, DashboardOverview, PaginatedResponse, ProjectDTO, TaskDTO } from '../types/api';
+import type { CommentDTO, DashboardOverview, OngoingTask, PaginatedResponse, ProjectDTO, TaskDTO } from '../types/api';
 
 export interface CreateTaskPayload {
   title: string;
@@ -49,7 +49,12 @@ export const supervisorService = {
   },
 
   getDashboardOverview: async (): Promise<DashboardOverview> => {
-  const response = await api.get('/supervisor/dashboard/overview');
-  return response.data;
-},
+    const response = await api.get('/supervisor/dashboard/overview');
+    return response.data;
+  },
+
+  getOngoingTasks: async (): Promise<OngoingTask[]> => {
+    const response = await api.get('/supervisor/dashboard/ongoing-tasks');
+    return response.data;
+  },
 };
