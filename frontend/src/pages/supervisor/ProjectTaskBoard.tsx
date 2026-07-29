@@ -13,7 +13,7 @@ export const ProjectTaskBoard = () => {
   const location = useLocation();
 
   // Extract the project from the router state, or fallback to a basic object if directly accessed
-  const [project, setProject] = useState<ProjectDTO | null>(
+  const [project] = useState<ProjectDTO | null>(
     (location.state?.project as ProjectDTO) || null,
   );
 
