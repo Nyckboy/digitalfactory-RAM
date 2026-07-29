@@ -1,6 +1,7 @@
 package com.digitalfactory.platform.controller;
 
 import com.digitalfactory.platform.dto.request.ProjectCreateRequest;
+import com.digitalfactory.platform.dto.request.ProjectGenerateRequest;
 import com.digitalfactory.platform.dto.request.ProjectUpdateRequest;
 import com.digitalfactory.platform.dto.request.RegisterRequest;
 import com.digitalfactory.platform.dto.request.UserUpdateRequest;
@@ -11,6 +12,7 @@ import com.digitalfactory.platform.dto.response.PageResponse;
 import com.digitalfactory.platform.dto.response.ProjectResponse;
 import com.digitalfactory.platform.dto.response.UserResponse;
 import com.digitalfactory.platform.service.ActivityLogService;
+import com.digitalfactory.platform.service.AiGenerationService;
 import com.digitalfactory.platform.service.ProjectService;
 import com.digitalfactory.platform.service.UserService;
 import jakarta.validation.Valid;
@@ -31,6 +33,7 @@ public class AdminController {
     private final UserService userService;
     private final ProjectService projectService;
     private final ActivityLogService activityLogService;
+    private final AiGenerationService aiGenerationService;
 
     @PostMapping("/users/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
@@ -92,5 +95,16 @@ public class AdminController {
     public ResponseEntity<List<ActivityLogResponse>> getRecentActivities(
             @RequestParam(defaultValue = "5") int limit) {
         return ResponseEntity.ok(activityLogService.getRecentActivities(limit));
+    }
+
+    @PostMapping("/projects/generate")
+    public ResponseEntity<ProjectResponse> generateProjectWithAi(@Valid @RequestBody ProjectGenerateRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.generateProjectWithAi(request));
+    }
+
+    @GetMapping("/projects/ai/test")
+    public ResponseEntity<MessageResponse> testAiConnection() {
+        String aiResponse = aiGenerationService.testAiConnection();
+        return ResponseEntity.ok(new MessageResponse("AI Test Successful. The AI said: " + aiResponse));
     }
 }

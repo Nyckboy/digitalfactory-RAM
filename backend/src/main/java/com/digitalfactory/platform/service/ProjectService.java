@@ -1,10 +1,13 @@
 package com.digitalfactory.platform.service;
 
+import com.digitalfactory.platform.dto.AiProjectDraft;
 import com.digitalfactory.platform.dto.request.ProjectCreateRequest;
+import com.digitalfactory.platform.dto.request.ProjectGenerateRequest;
 import com.digitalfactory.platform.dto.request.ProjectUpdateRequest;
 import com.digitalfactory.platform.dto.response.AdminDashboardStatsResponse;
 import com.digitalfactory.platform.dto.response.ProjectResponse;
 import com.digitalfactory.platform.model.Project;
+import com.digitalfactory.platform.model.Task;
 import com.digitalfactory.platform.model.User;
 import com.digitalfactory.platform.model.enums.ProjectStatus;
 import com.digitalfactory.platform.model.enums.TaskStatus;
@@ -34,6 +37,7 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final ActivityLogService activityLogService;
+    private final AiGenerationService aiGenerationService;
 
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
@@ -154,5 +158,59 @@ public class ProjectService {
                 .teamMembers(userRepository.countByRoleNot(UserRole.SUPER_ADMIN))
                 .tasksCompleted(taskRepository.countByStatus(TaskStatus.COMPLETED))
                 .build();
+    }
+
+    @Transactional
+    public ProjectResponse generateProjectWithAi(ProjectGenerateRequest request) {
+        // 1. Validate supervisor and interns
+        User supervisor = userRepository.findById(request.getSupervisorId())
+                .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
+        
+        Set<User> interns = new java.util.HashSet<>();
+        if (request.getInternIds() != null) {
+            interns.addAll(userRepository.findAllById(request.getInternIds()));
+        }
+
+        // 2. Call the AI to get the structure
+        AiProjectDraft draft = aiGenerationService.generateProjectStructure(request.getPrompt());
+
+        // 3. Create the Project
+        Project project = Project.builder()
+                .title(draft.getTitle())
+                .description(draft.getDescription())
+                .status(ProjectStatus.ACTIVE)
+                .supervisor(supervisor)
+                .interns(interns)
+                .build();
+        
+        Project savedProject = projectRepository.save(project);
+
+        // 4. Create and save the generated Tasks
+        java.time.LocalDateTime defaultDeadline = java.time.LocalDateTime.now().plusDays(14); // Default 2-week sprint
+        
+        for (AiProjectDraft.AiTaskDraft taskDraft : draft.getTasks()) {
+            Task task = Task.builder()
+                    .title(taskDraft.getTitle())
+                    .description(taskDraft.getDescription())
+                    .status(TaskStatus.TODO)
+                    .deadline(defaultDeadline)
+                    .project(savedProject)
+                    // Tasks are left unassigned initially for the supervisor to distribute
+                    .build();
+            taskRepository.save(task);
+        }
+
+        // 5. Log the activity for the audit trail
+        String adminEmail = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+        User admin = userRepository.findByEmail(adminEmail).orElse(supervisor);
+        
+        activityLogService.logActivity(
+                admin,
+                "used AI to generate a new project:",
+                savedProject.getTitle()
+        );
+
+        return ProjectResponse.fromEntity(savedProject);
     }
 }
