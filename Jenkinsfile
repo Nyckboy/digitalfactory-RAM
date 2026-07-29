@@ -5,7 +5,7 @@ pipeline {
         maven 'Maven3'
         nodejs 'Node20'
     }
-    
+
     environment {
         // These should be configured in Jenkins > Manage Jenkins > Credentials
         DB_USER     = credentials('db-user')
@@ -70,7 +70,7 @@ pipeline {
                   # 2. Start the frontend on host port 3000
                   docker run -d --name frontend \
                     --network digitalfactory-net \
-                    -p 3002:80 my-app-frontend
+                    -p 3003:80 my-app-frontend
                   '''
             }
         }
