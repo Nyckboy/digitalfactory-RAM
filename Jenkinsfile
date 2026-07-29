@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven3'
+        nodejs 'Node20'
+    }
+    
     environment {
         // These should be configured in Jenkins > Manage Jenkins > Credentials
         DB_USER     = credentials('db-user')
