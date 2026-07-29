@@ -53,6 +53,8 @@ pipeline {
                 // Example: Deploying via Docker Compose or starting containers directly.
                 // We pass the Jenkins credentials securely into the deployment environment.
                 sh '''
+                  docker rm -f backend || true
+                  docker rm -f frontend || true
                   # 1. Start the backend on host port 8082
                   # It joins the network to talk to the frontend, and uses host.docker.internal for the DB
                   docker run -d --name backend \
