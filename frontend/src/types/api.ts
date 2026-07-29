@@ -128,3 +128,9 @@ export interface InternDashboardOverview {
   upcomingDeadlines: number;
   urgentTasks: UrgentTask[];
 }
+
+export interface GenerateProjectPayload {
+  prompt: string;
+  supervisorId: string;
+  internIds: string[];
+}

@@ -21,6 +21,10 @@ public class TaskResponse {
     private UserResponse assignedTo;
 
     public static TaskResponse fromEntity(Task task) {
+        UserResponse assigneeResponse = null;
+        if (task.getAssignedTo() != null) {
+            assigneeResponse = UserResponse.fromEntity(task.getAssignedTo());
+        }
         return TaskResponse.builder()
                 .id(task.getId())
                 .title(task.getTitle())
@@ -29,7 +33,7 @@ public class TaskResponse {
                 .deadline(task.getDeadline())
                 .submissionUrl(task.getSubmissionUrl())
                 .projectId(task.getProject().getId())
-                .assignedTo(UserResponse.fromEntity(task.getAssignedTo()))
+                .assignedTo(assigneeResponse)
                 .build();
     }
 }

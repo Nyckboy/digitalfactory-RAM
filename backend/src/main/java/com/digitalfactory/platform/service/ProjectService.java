@@ -162,55 +162,55 @@ public class ProjectService {
 
     @Transactional
     public ProjectResponse generateProjectWithAi(ProjectGenerateRequest request) {
-        // 1. Validate supervisor and interns
-        User supervisor = userRepository.findById(request.getSupervisorId())
-                .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
+        System.out.println("\n=== [PROJECT SERVICE] ENTERING GENERATION METHOD ===");
         
-        Set<User> interns = new java.util.HashSet<>();
-        if (request.getInternIds() != null) {
-            interns.addAll(userRepository.findAllById(request.getInternIds()));
-        }
+        try {
+            System.out.println("[PROJECT SERVICE] Fetching supervisor ID: " + request.getSupervisorId());
+            User supervisor = userRepository.findById(request.getSupervisorId())
+                    .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
+            
+            Set<User> interns = new java.util.HashSet<>();
+            if (request.getInternIds() != null) {
+                System.out.println("[PROJECT SERVICE] Fetching " + request.getInternIds().size() + " interns");
+                interns.addAll(userRepository.findAllById(request.getInternIds()));
+            }
 
-        // 2. Call the AI to get the structure
-        AiProjectDraft draft = aiGenerationService.generateProjectStructure(request.getPrompt());
-
-        // 3. Create the Project
-        Project project = Project.builder()
-                .title(draft.getTitle())
-                .description(draft.getDescription())
-                .status(ProjectStatus.ACTIVE)
-                .supervisor(supervisor)
-                .interns(interns)
-                .build();
-        
-        Project savedProject = projectRepository.save(project);
-
-        // 4. Create and save the generated Tasks
-        java.time.LocalDateTime defaultDeadline = java.time.LocalDateTime.now().plusDays(14); // Default 2-week sprint
-        
-        for (AiProjectDraft.AiTaskDraft taskDraft : draft.getTasks()) {
-            Task task = Task.builder()
-                    .title(taskDraft.getTitle())
-                    .description(taskDraft.getDescription())
-                    .status(TaskStatus.TODO)
-                    .deadline(defaultDeadline)
-                    .project(savedProject)
-                    // Tasks are left unassigned initially for the supervisor to distribute
+            System.out.println("[PROJECT SERVICE] Calling AI Generation Service...");
+            AiProjectDraft draft = aiGenerationService.generateProjectStructure(request.getPrompt());
+            
+            System.out.println("[PROJECT SERVICE] AI finished. Saving main Project entity...");
+            Project project = Project.builder()
+                    .title(draft.getTitle())
+                    .description(draft.getDescription())
+                    .status(ProjectStatus.ACTIVE)
+                    .supervisor(supervisor)
+                    .interns(interns)
                     .build();
-            taskRepository.save(task);
+            
+            Project savedProject = projectRepository.save(project);
+            System.out.println("[PROJECT SERVICE] Main Project saved with ID: " + savedProject.getId());
+
+            System.out.println("[PROJECT SERVICE] Saving " + draft.getTasks().size() + " tasks...");
+            java.time.LocalDateTime defaultDeadline = java.time.LocalDateTime.now().plusDays(14); 
+            
+            for (AiProjectDraft.AiTaskDraft taskDraft : draft.getTasks()) {
+                Task task = Task.builder()
+                        .title(taskDraft.getTitle())
+                        .description(taskDraft.getDescription())
+                        .status(TaskStatus.TODO)
+                        .deadline(defaultDeadline)
+                        .project(savedProject)
+                        .build();
+                taskRepository.save(task);
+            }
+            System.out.println("[PROJECT SERVICE] All tasks saved successfully!");
+
+            return ProjectResponse.fromEntity(savedProject);
+            
+        } catch (Exception e) {
+            System.err.println("\n!!! [PROJECT SERVICE] DATABASE/LOGIC ERROR CRASH !!!");
+            e.printStackTrace();
+            throw e;
         }
-
-        // 5. Log the activity for the audit trail
-        String adminEmail = org.springframework.security.core.context.SecurityContextHolder
-                .getContext().getAuthentication().getName();
-        User admin = userRepository.findByEmail(adminEmail).orElse(supervisor);
-        
-        activityLogService.logActivity(
-                admin,
-                "used AI to generate a new project:",
-                savedProject.getTitle()
-        );
-
-        return ProjectResponse.fromEntity(savedProject);
     }
 }

@@ -297,10 +297,10 @@ export const SupervisorDashboard = () => {
                     </span>
                     <div
                       className="w-6 h-6 rounded-full bg-surface-container-highest border border-surface-variant flex items-center justify-center text-[10px] font-bold text-on-surface-variant cursor-help"
-                      title={`${task.assignedTo.firstName} ${task.assignedTo.lastName}`}
+                      // title={`${task.assignedTo.firstName} ${task.assignedTo.lastName}`}
                     >
-                      {task.assignedTo.firstName[0].toUpperCase()}
-                      {task.assignedTo.lastName[0].toUpperCase()}
+                      {/* {task.assignedTo.firstName[0].toUpperCase()}
+                      {task.assignedTo.lastName[0].toUpperCase()} */}
                     </div>
                   </div>
                 </div>

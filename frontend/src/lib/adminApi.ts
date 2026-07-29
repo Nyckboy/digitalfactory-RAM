@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { PaginatedResponse, UserDTO, ProjectDTO, DashboardStats, ActivityLog } from '../types/api';
+import type { PaginatedResponse, UserDTO, ProjectDTO, DashboardStats, ActivityLog, GenerateProjectPayload } from '../types/api';
 
 export const adminService = {
   // Fetch Users
@@ -55,4 +55,9 @@ export const adminService = {
   const response = await api.get(`/admin/activities?limit=${limit}`);
   return response.data;
   },
+
+  generateProject: async (payload: GenerateProjectPayload): Promise<ProjectDTO> => {
+  const response = await api.post('/admin/projects/generate', payload);
+  return response.data;
+},
 };
