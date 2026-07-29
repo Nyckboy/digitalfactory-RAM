@@ -258,4 +258,23 @@ public class SupervisorService {
             intern.getEmail().toLowerCase().contains(query)
         );
     }
+
+    @Transactional(readOnly = true)
+    public TaskResponse getTaskById(String supervisorEmail, java.util.UUID taskId) {
+        // 1. Fetch the supervisor to verify identity
+        User supervisor = userRepository.findByEmail(supervisorEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
+
+        // 2. Fetch the task
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+
+        // 3. Security check: Ensure the task belongs to a project managed by this supervisor
+        if (!task.getProject().getSupervisor().getId().equals(supervisor.getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("You do not have permission to view this task");
+        }
+
+        // 4. Map and return
+        return TaskResponse.fromEntity(task);
+    }
 }

@@ -134,3 +134,11 @@ export interface GenerateProjectPayload {
   supervisorId: string;
   internIds: string[];
 }
+
+export interface UpdateTaskPayload {
+  title: string;
+  description: string;
+  status: string;
+  deadline: string;
+  assignedToId: string | null;
+}

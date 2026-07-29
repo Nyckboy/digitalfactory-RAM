@@ -1,12 +1,21 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { supervisorService } from "../../lib/supervisorApi";
-import type { TaskDTO, TaskStatus } from "../../types/api";
+import type { TaskDTO, TaskStatus, ProjectDTO } from "../../types/api";
 import { TaskCommentsModal } from "../../components/shared/TaskCommentsModal";
+import { EditTaskModal } from "./EditTaskModal";
+// Make sure to import CreateTaskModal if you are using it in this file
+import { CreateTaskModal } from "./CreateTaskModal";
 
 export const ProjectTaskBoard = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Extract the project from the router state, or fallback to a basic object if directly accessed
+  const [project, setProject] = useState<ProjectDTO | null>(
+    (location.state?.project as ProjectDTO) || null,
+  );
 
   const [tasks, setTasks] = useState<TaskDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,15 +24,26 @@ export const ProjectTaskBoard = () => {
   const [chatModalOpen, setChatModalOpen] = useState(false);
   const [chatTask, setChatTask] = useState<TaskDTO | null>(null);
 
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editTaskId, setEditTaskId] = useState<string | null>(null);
+
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+
   const openChat = (task: TaskDTO) => {
     setChatTask(task);
     setChatModalOpen(true);
   };
 
-  const fetchTasks = useCallback(async () => {
+  const openEdit = (taskId: string) => {
+    setEditTaskId(taskId);
+    setEditModalOpen(true);
+  };
+
+  const fetchBoardData = useCallback(async () => {
     if (!projectId) return;
     setIsLoading(true);
     try {
+      // Only fetch the tasks now, since we already have the project from router state
       const response = await supervisorService.getProjectTasks(
         projectId,
         0,
@@ -31,24 +51,34 @@ export const ProjectTaskBoard = () => {
       );
       setTasks(response.content);
     } catch (err) {
-      setError("Failed to load project tasks.");
+      setError("Failed to load project board data.");
     } finally {
       setIsLoading(false);
     }
   }, [projectId]);
 
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+    fetchBoardData();
+  }, [fetchBoardData]);
 
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
+    const taskToUpdate = tasks.find((t) => t.id === taskId);
+    if (!taskToUpdate) return;
+
+    // Optimistically update the UI
     setTasks((prev) =>
       prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
     );
+
     try {
-      await supervisorService.updateTask(taskId, { status: newStatus });
+      await supervisorService.updateTask(taskId, {
+        ...taskToUpdate,
+        status: newStatus,
+      });
     } catch (err) {
-      fetchTasks();
+      console.error("Failed to update task status", err);
+      // Revert on failure
+      fetchBoardData();
     }
   };
 
@@ -58,7 +88,7 @@ export const ProjectTaskBoard = () => {
     try {
       await supervisorService.deleteTask(taskId);
     } catch (err) {
-      fetchTasks();
+      fetchBoardData();
     }
   };
 
@@ -138,8 +168,34 @@ export const ProjectTaskBoard = () => {
     );
   if (error) return <div className="py-10 text-center text-error">{error}</div>;
 
+  // Fallback project object if navigating directly via URL without state
+  const activeProject =
+    project ||
+    ({
+      id: projectId,
+      title: "Project Board",
+      interns: [],
+    } as any as ProjectDTO);
+
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
+      <CreateTaskModal
+        isOpen={isTaskModalOpen}
+        onClose={() => {
+          setIsTaskModalOpen(false);
+          fetchBoardData(); // Refresh the board after closing!
+        }}
+        project={activeProject}
+      />
+
+      <EditTaskModal
+        isOpen={editModalOpen}
+        taskId={editTaskId}
+        project={activeProject}
+        onClose={() => setEditModalOpen(false)}
+        onSuccess={fetchBoardData}
+      />
+
       <TaskCommentsModal
         isOpen={chatModalOpen}
         task={chatTask}
@@ -152,7 +208,7 @@ export const ProjectTaskBoard = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/supervisor/projects")}
-            className="px-4 py-2 text-sm font-medium text-secondary bg-surface-container-lowest border border-outline-variant  hover:bg-surface-container-low transition-colors duration-200 rounded-lg flex items-center gap-2 shadow-sm"
+            className="px-4 py-2 text-sm font-medium text-secondary bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-low transition-colors duration-200 rounded-lg flex items-center gap-2 shadow-sm"
           >
             <span className="material-symbols-outlined text-[18px]">
               arrow_back
@@ -160,7 +216,7 @@ export const ProjectTaskBoard = () => {
           </button>
           <div>
             <h2 className="text-3xl font-bold text-on-background tracking-tight">
-              Project Board
+              {activeProject.title}
             </h2>
             <p className="text-sm text-secondary mt-1">
               Oversee tasks and review intern deliverables.
@@ -217,15 +273,28 @@ export const ProjectTaskBoard = () => {
                           Task
                         </span>
                       </div>
-                      <button
-                        onClick={() => handleDelete(task.id)}
-                        className="text-secondary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Delete Task"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">
-                          close
-                        </span>
-                      </button>
+
+                      {/* Edit and Delete Actions */}
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => openEdit(task.id)}
+                          className="text-secondary hover:text-primary-container"
+                          title="Edit Task"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            edit
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => handleDelete(task.id)}
+                          className="text-secondary hover:text-error"
+                          title="Delete Task"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">
+                            close
+                          </span>
+                        </button>
+                      </div>
                     </div>
 
                     <h4 className="text-sm font-bold text-on-background mb-2 leading-tight">
@@ -273,12 +342,24 @@ export const ProjectTaskBoard = () => {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <div
-                          className="w-6 h-6 rounded-full bg-tertiary-fixed flex items-center justify-center text-[10px] font-bold text-tertiary border border-surface-container-lowest shadow-sm cursor-help"
-                          title={`Assigned to ${task.assignedTo?.firstName} ${task.assignedTo?.lastName}`}
-                        >
-                          {task.assignedTo?.firstName?.[0]?.toUpperCase()}
-                        </div>
+                        {task.assignedTo ? (
+                          <div
+                            className="w-6 h-6 rounded-full bg-tertiary-fixed flex items-center justify-center text-[10px] font-bold text-tertiary border border-surface-container-lowest shadow-sm cursor-help"
+                            title={`Assigned to ${task.assignedTo.firstName} ${task.assignedTo.lastName}`}
+                          >
+                            {task.assignedTo.firstName[0]?.toUpperCase()}
+                          </div>
+                        ) : (
+                          <div
+                            className="w-6 h-6 rounded-full border border-dashed border-secondary flex items-center justify-center text-secondary cursor-help"
+                            title="Unassigned (Backlog)"
+                          >
+                            <span className="material-symbols-outlined text-[12px]">
+                              person_off
+                            </span>
+                          </div>
+                        )}
+
                         <button
                           onClick={() => openChat(task)}
                           className="text-secondary hover:text-primary-container transition-colors flex items-center justify-center w-6 h-6 rounded-full hover:bg-surface-container-low"
@@ -299,6 +380,19 @@ export const ProjectTaskBoard = () => {
                   </div>
                 )}
               </div>
+
+              {/* Add Task Button (Pinned to bottom of To Do column) */}
+              {col.status === "TODO" && (
+                <button
+                  onClick={() => setIsTaskModalOpen(true)}
+                  className="mt-3 py-2 text-secondary hover:text-primary-container hover:bg-surface-container-highest/50 rounded-lg flex items-center justify-center gap-1.5 transition-colors text-xs font-bold w-full"
+                >
+                  <span className="material-symbols-outlined text-[16px]">
+                    add
+                  </span>
+                  Add Task
+                </button>
+              )}
             </div>
           ))}
         </div>

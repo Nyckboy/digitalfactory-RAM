@@ -107,7 +107,9 @@ export const SupervisorProjectsView = () => {
               <div className="flex justify-between items-center mt-auto pt-4 border-t border-surface-variant/40 gap-3">
                 <button
                   onClick={() =>
-                    navigate(`/supervisor/projects/${project.id}/board`)
+                    navigate(`/supervisor/projects/${project.id}/board`, {
+                      state: { project },
+                    })
                   }
                   className="flex-1 py-2 bg-surface-container-low border border-surface-variant rounded-lg text-sm font-medium text-on-surface hover:bg-surface-variant transition-colors"
                 >

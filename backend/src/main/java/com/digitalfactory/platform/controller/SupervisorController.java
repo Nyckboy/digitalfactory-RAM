@@ -67,10 +67,10 @@ public class SupervisorController {
         return ResponseEntity.ok(supervisorService.updateTask(principal.getName(), taskId, request));
     }
 
-    // @GetMapping("/tasks/{taskId}")
-    // public ResponseEntity<TaskResponse> getTaskById(Principal principal, @PathVariable UUID taskId) {
-    //     return ResponseEntity.ok(supervisorService.getTaskById(principal.getName(), taskId));
-    // }
+    @GetMapping("/tasks/{taskId}")
+    public ResponseEntity<TaskResponse> getTaskById(Principal principal, @PathVariable UUID taskId) {
+        return ResponseEntity.ok(supervisorService.getTaskById(principal.getName(), taskId));
+    }
 
     @DeleteMapping("/tasks/{taskId}")
     public ResponseEntity<?> deleteTask(

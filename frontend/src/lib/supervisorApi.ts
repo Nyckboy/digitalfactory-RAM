@@ -33,6 +33,16 @@ export const supervisorService = {
     return response.data;
   },
 
+  getTask: async (taskId: string): Promise<TaskDTO> => {
+    const response = await api.get(`/supervisor/tasks/${taskId}`);
+    return response.data;
+  },
+
+  getProject: async (projectId: string): Promise<ProjectDTO> => {
+    const response = await api.get(`/supervisor/projects/${projectId}`);
+    return response.data;
+  },
+
   deleteTask: async (taskId: string) => {
     const response = await api.delete(`/supervisor/tasks/${taskId}`);
     return response.data;
