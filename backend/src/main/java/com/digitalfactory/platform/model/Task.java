@@ -44,7 +44,7 @@ public class Task {
 
     // The intern this task is assigned to
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_to_id", nullable = false)
+    @JoinColumn(name = "assigned_to_id", nullable = true)
     private User assignedTo;
 
     @CreationTimestamp
