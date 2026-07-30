@@ -295,19 +295,21 @@ export const CreateProjectModal = ({
               >
                 Cancel
               </button>
+
+              {/* FIXED BUTTON CLASSES HERE */}
               <button
                 type="submit"
                 disabled={
                   isLoading || supervisors.length === 0 || interns.length === 0
                 }
-                className={`px-6 py-2 text-sm font-medium text-on-primary rounded-lg shadow-sm transition-colors flex items-center gap-2 ${
+                className={`px-6 py-2 text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center gap-2 ${
                   isLoading || supervisors.length === 0 || interns.length === 0
                     ? isAiMode
-                      ? "bg-tertiary/70 cursor-not-allowed"
-                      : "bg-primary-container/70 cursor-not-allowed"
+                      ? "bg-tertiary text-on-tertiary opacity-70 cursor-not-allowed"
+                      : "bg-primary-container text-on-primary opacity-70 cursor-not-allowed"
                     : isAiMode
-                      ? "bg-tertiary hover:bg-tertiary-container hover:text-on-tertiary-container"
-                      : "bg-primary-container hover:bg-primary"
+                      ? "bg-tertiary text-on-tertiary hover:bg-tertiary-container hover:text-on-tertiary-container"
+                      : "bg-primary-container text-on-primary hover:bg-primary"
                 }`}
               >
                 {isLoading ? (
