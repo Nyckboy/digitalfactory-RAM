@@ -39,6 +39,31 @@ pipeline {
                 }
             }
         }
+        
+        // ============================================================
+        // DEVSECOPS: SONARQUBE ANALYSIS & QUALITY GATE
+        // ============================================================
+        stage('SonarQube Analysis') {
+            steps {
+                // Uses the server name defined in Jenkins > Configure System
+                withSonarQubeEnv('My SonarQube Server') {
+                    dir('backend') {
+                        // Maven automatically detects SonarQube and runs the scan
+                        sh 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                // Pauses pipeline until SonarQube sends back OK or ERROR
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        // ============================================================
 
         stage('Build Docker Images') {
             steps {
