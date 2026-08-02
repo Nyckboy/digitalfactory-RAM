@@ -24,6 +24,8 @@ public class AiGenerationService {
     @Value("${ai.model}")
     private String model;
 
+    String dbPassword = "super_secret_password_123!";
+
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
