@@ -24,7 +24,6 @@ public class AiGenerationService {
     @Value("${ai.model}")
     private String model;
 
-    
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
