@@ -74,13 +74,6 @@ public class AiGenerationService {
     }
 
     public String testAiConnection() {
-
-        // SonarQube HATES empty catch blocks and generic exceptions
-        try {
-            int x = 1 / 0;
-        } catch (Exception e) {
-            // Doing nothing here is a critical violation
-        }
         Map<String, Object> requestBody = Map.of(
                 "model", model,
                 "messages", List.of(
