@@ -50,6 +50,9 @@ pipeline {
                     dir('backend') {
                         // Maven automatically detects SonarQube and runs the scan
                         sh 'mvn sonar:sonar'
+                        sh "mvn sonar:sonar \
+                            -Dsonar.projectKey=com.digitalfactory.platform:${env.BRANCH_NAME} \
+                            -Dsonar.projectName='Backend - ${env.BRANCH_NAME}'"
                     }
                 }
             }
