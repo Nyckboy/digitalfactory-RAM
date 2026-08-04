@@ -165,14 +165,12 @@ public class ProjectService {
 
     // STEP 1: Just get the draft from the AI, do NOT save it.
     public AiProjectDraft draftProjectWithAi(ProjectGenerateRequest request) {
-        System.out.println("[PROJECT SERVICE] Requesting AI Draft for prompt: " + request.getPrompt());
         return aiGenerationService.generateProjectStructure(request.getPrompt());
     }
 
     // STEP 2: Take the confirmed/edited draft from the Admin and save it to the DB.
     @Transactional
     public ProjectResponse confirmAndSaveProject(ProjectConfirmRequest request) {
-        System.out.println("\n=== [PROJECT SERVICE] SAVING CONFIRMED AI PROJECT ===");
 
         User supervisor = userRepository.findById(request.getSupervisorId())
                 .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
