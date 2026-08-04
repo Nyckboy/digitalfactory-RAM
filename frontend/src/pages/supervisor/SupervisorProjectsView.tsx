@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supervisorService } from "../../lib/supervisorApi";
 import type { ProjectDTO } from "../../types/api";
 import { CreateTaskModal } from "./CreateTaskModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 export const SupervisorProjectsView = () => {
   const navigate = useNavigate();

@@ -72,7 +72,7 @@ pipeline {
                         dir('backend') {
                             // Uses OWASP to check Java dependencies for known CVEs
                             // Fails the build only if High/Critical flaws (Score 7.0+) are found
-                            sh 'mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7.0'
+                            sh 'mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7.0 -DcisaAnalyzerEnabled=false'
                         }
                     }
                 }

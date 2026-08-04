@@ -1,4 +1,4 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink } from "react-router";
 import { useAuthStore } from "../../store/useAuthStore";
 
 export const InternLayout = () => {

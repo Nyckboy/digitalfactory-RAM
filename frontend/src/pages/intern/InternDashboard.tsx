@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { internService } from "../../lib/internApi";
 import type { InternDashboardOverview } from "../../types/api";
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router";
 import { supervisorService } from "../../lib/supervisorApi";
 import type { TaskDTO, TaskStatus, ProjectDTO } from "../../types/api";
 import { TaskCommentsModal } from "../../components/shared/TaskCommentsModal";

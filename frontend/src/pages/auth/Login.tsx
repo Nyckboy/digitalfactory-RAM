@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
 import { api } from "../../lib/api";
 import { useAuthStore } from "../../store/useAuthStore";
