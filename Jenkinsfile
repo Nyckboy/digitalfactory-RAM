@@ -50,6 +50,7 @@ pipeline {
                     dir('backend') {
                         // Maven automatically detects SonarQube and runs the scan
                         def cleanBranch = env.BRANCH_NAME.replaceAll('/', '-')
+                        sh 'mvn sonar:sonar'
                         sh "mvn sonar:sonar \
                             -Dsonar.projectKey=com.digitalfactory.platform:${cleanBranch} \
                             -Dsonar.projectName='Backend - ${cleanBranch}'"
