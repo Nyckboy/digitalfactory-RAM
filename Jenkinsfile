@@ -61,6 +61,33 @@ pipeline {
                 }
             }
         }
+
+        // ============================================================
+        // DEVSECOPS: DEPENDENCY SCANNING (SCA)
+        // ============================================================
+        stage('Dependency Scan (SCA)') {
+            parallel {
+                stage('Backend Dependencies') {
+                    steps {
+                        dir('backend') {
+                            // Uses OWASP to check Java dependencies for known CVEs
+                            // Fails the build only if High/Critical flaws (Score 7.0+) are found
+                            sh 'mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7.0'
+                        }
+                    }
+                }
+                
+                stage('Frontend Dependencies') {
+                    steps {
+                        dir('frontend') {
+                            // Native pnpm audit checks for compromised npm packages
+                            // Fails the build if high or critical vulnerabilities are found
+                            sh 'pnpm audit --audit-level=high'
+                        }
+                    }
+                }
+            }
+        }
         
         // ============================================================
         // DEVSECOPS: SONARQUBE ANALYSIS & QUALITY GATE
@@ -164,6 +191,8 @@ pipeline {
     post {
         always {
             cleanWs()
+            // Cleans up dangling Docker images left over from the build
+            sh 'docker image prune -f'
         }
     }
 }
