@@ -109,14 +109,14 @@ pipeline {
                     steps {
                         // Scans the locally built backend image for High and Critical vulnerabilities
                         // Added trivy-cache volume to prevent downloading the DB every run
-                        sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy aquasec/trivy:latest image --severity HIGH,CRITICAL --no-progress my-app-backend'
+                        sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache-backend:/root/.cache/trivy aquasec/trivy:latest image --severity HIGH,CRITICAL --no-progress my-app-backend'
                     }
                 }
                 stage('Scan Frontend Image') {
                     steps {
                         // Scans the locally built frontend image
                         // Reuses the exact same cache volume for lightning-fast scanning
-                        sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache/trivy aquasec/trivy:latest image --severity HIGH,CRITICAL --no-progress my-app-frontend'
+                        sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache-frontend:/root/.cache/trivy aquasec/trivy:latest image --severity HIGH,CRITICAL --no-progress my-app-frontend'
                     }
                 }
             }
