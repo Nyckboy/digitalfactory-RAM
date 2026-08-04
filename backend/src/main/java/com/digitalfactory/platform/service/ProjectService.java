@@ -1,6 +1,7 @@
 package com.digitalfactory.platform.service;
 
 import com.digitalfactory.platform.dto.AiProjectDraft;
+import com.digitalfactory.platform.dto.request.ProjectConfirmRequest;
 import com.digitalfactory.platform.dto.request.ProjectCreateRequest;
 import com.digitalfactory.platform.dto.request.ProjectGenerateRequest;
 import com.digitalfactory.platform.dto.request.ProjectUpdateRequest;
@@ -41,11 +42,11 @@ public class ProjectService {
 
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
-        
+
         // 1. Validate and fetch the Supervisor
         User supervisor = userRepository.findById(request.getSupervisorId())
                 .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
-                
+
         if (supervisor.getRole() != UserRole.SUPERVISOR) {
             throw new IllegalArgumentException("The assigned user is not a Supervisor");
         }
@@ -54,7 +55,7 @@ public class ProjectService {
         Set<User> validInterns = new HashSet<>();
         if (request.getInternIds() != null && !request.getInternIds().isEmpty()) {
             List<User> foundInterns = userRepository.findAllById(request.getInternIds());
-            
+
             for (User intern : foundInterns) {
                 if (intern.getRole() != UserRole.INTERN) {
                     throw new IllegalArgumentException("User " + intern.getEmail() + " is not an Intern");
@@ -70,16 +71,15 @@ public class ProjectService {
                 .supervisor(supervisor)
                 .interns(validInterns)
                 .build();
-        
+
         String adminEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User admin = userRepository.findByEmail(adminEmail)
-            .orElseThrow(() -> new IllegalArgumentException("Admin not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Admin not found"));
 
         activityLogService.logActivity(
-            admin,
-            "created a new project:",
-            project.getTitle()
-        );
+                admin,
+                "created a new project:",
+                project.getTitle());
 
         return projectRepository.save(project);
     }
@@ -95,9 +95,12 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
-        if (request.getTitle() != null) project.setTitle(request.getTitle());
-        if (request.getDescription() != null) project.setDescription(request.getDescription());
-        if (request.getStatus() != null) project.setStatus(request.getStatus());
+        if (request.getTitle() != null)
+            project.setTitle(request.getTitle());
+        if (request.getDescription() != null)
+            project.setDescription(request.getDescription());
+        if (request.getStatus() != null)
+            project.setStatus(request.getStatus());
 
         // Update Supervisor if provided
         if (request.getSupervisorId() != null) {
@@ -113,7 +116,7 @@ public class ProjectService {
         if (request.getInternIds() != null) {
             List<User> newInterns = userRepository.findAllById(request.getInternIds());
             Set<User> validInterns = new HashSet<>();
-            
+
             for (User intern : newInterns) {
                 if (intern.getRole() != UserRole.INTERN) {
                     throw new IllegalArgumentException("User " + intern.getEmail() + " is not an Intern");
@@ -130,8 +133,7 @@ public class ProjectService {
         activityLogService.logActivity(
                 admin,
                 "updated the configuration for project:",
-                project.getTitle()
-        );
+                project.getTitle());
 
         return ProjectResponse.fromEntity(projectRepository.save(project));
     }
@@ -141,9 +143,10 @@ public class ProjectService {
         if (!projectRepository.existsById(projectId)) {
             throw new IllegalArgumentException("Project not found");
         }
-        
+
         // Note: If you want deleting a project to automatically delete all its tasks,
-        // you need to add cascade = CascadeType.REMOVE to the @OneToMany tasks list in the Project entity.
+        // you need to add cascade = CascadeType.REMOVE to the @OneToMany tasks list in
+        // the Project entity.
         try {
             projectRepository.deleteById(projectId);
         } catch (DataIntegrityViolationException e) {
@@ -160,57 +163,53 @@ public class ProjectService {
                 .build();
     }
 
+    // STEP 1: Just get the draft from the AI, do NOT save it.
+    public AiProjectDraft draftProjectWithAi(ProjectGenerateRequest request) {
+        System.out.println("[PROJECT SERVICE] Requesting AI Draft for prompt: " + request.getPrompt());
+        return aiGenerationService.generateProjectStructure(request.getPrompt());
+    }
+
+    // STEP 2: Take the confirmed/edited draft from the Admin and save it to the DB.
     @Transactional
-    public ProjectResponse generateProjectWithAi(ProjectGenerateRequest request) {
-        System.out.println("\n=== [PROJECT SERVICE] ENTERING GENERATION METHOD ===");
-        
-        try {
-            System.out.println("[PROJECT SERVICE] Fetching supervisor ID: " + request.getSupervisorId());
-            User supervisor = userRepository.findById(request.getSupervisorId())
-                    .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
-            
-            Set<User> interns = new java.util.HashSet<>();
-            if (request.getInternIds() != null) {
-                System.out.println("[PROJECT SERVICE] Fetching " + request.getInternIds().size() + " interns");
-                interns.addAll(userRepository.findAllById(request.getInternIds()));
-            }
+    public ProjectResponse confirmAndSaveProject(ProjectConfirmRequest request) {
+        System.out.println("\n=== [PROJECT SERVICE] SAVING CONFIRMED AI PROJECT ===");
 
-            System.out.println("[PROJECT SERVICE] Calling AI Generation Service...");
-            AiProjectDraft draft = aiGenerationService.generateProjectStructure(request.getPrompt());
-            
-            System.out.println("[PROJECT SERVICE] AI finished. Saving main Project entity...");
-            Project project = Project.builder()
-                    .title(draft.getTitle())
-                    .description(draft.getDescription())
-                    .status(ProjectStatus.ACTIVE)
-                    .supervisor(supervisor)
-                    .interns(interns)
-                    .build();
-            
-            Project savedProject = projectRepository.save(project);
-            System.out.println("[PROJECT SERVICE] Main Project saved with ID: " + savedProject.getId());
+        User supervisor = userRepository.findById(request.getSupervisorId())
+                .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
 
-            System.out.println("[PROJECT SERVICE] Saving " + draft.getTasks().size() + " tasks...");
-            java.time.LocalDateTime defaultDeadline = java.time.LocalDateTime.now().plusDays(14); 
-            
-            for (AiProjectDraft.AiTaskDraft taskDraft : draft.getTasks()) {
-                Task task = Task.builder()
-                        .title(taskDraft.getTitle())
-                        .description(taskDraft.getDescription())
-                        .status(TaskStatus.TODO)
-                        .deadline(defaultDeadline)
-                        .project(savedProject)
-                        .build();
-                taskRepository.save(task);
-            }
-            System.out.println("[PROJECT SERVICE] All tasks saved successfully!");
-
-            return ProjectResponse.fromEntity(savedProject);
-            
-        } catch (Exception e) {
-            System.err.println("\n!!! [PROJECT SERVICE] DATABASE/LOGIC ERROR CRASH !!!");
-            e.printStackTrace();
-            throw e;
+        Set<User> interns = new java.util.HashSet<>();
+        if (request.getInternIds() != null && !request.getInternIds().isEmpty()) {
+            interns.addAll(userRepository.findAllById(request.getInternIds()));
         }
+
+        AiProjectDraft draft = request.getDraft();
+
+        // 1. Save the main project
+        Project project = Project.builder()
+                .title(draft.getTitle())
+                .description(draft.getDescription())
+                .status(ProjectStatus.ACTIVE)
+                .supervisor(supervisor)
+                .interns(interns)
+                .build();
+
+        Project savedProject = projectRepository.save(project);
+
+        // 2. Save the tasks
+        java.time.LocalDateTime defaultDeadline = java.time.LocalDateTime.now().plusDays(14);
+
+        for (AiProjectDraft.AiTaskDraft taskDraft : draft.getTasks()) {
+            Task task = Task.builder()
+                    .title(taskDraft.getTitle())
+                    .description(taskDraft.getDescription())
+                    .status(TaskStatus.TODO)
+                    .deadline(defaultDeadline)
+                    .project(savedProject)
+                    .assignedTo(null) // Left unassigned for the backlog
+                    .build();
+            taskRepository.save(task);
+        }
+
+        return ProjectResponse.fromEntity(savedProject);
     }
 }

@@ -10,9 +10,4 @@ import java.util.UUID;
 public class ProjectGenerateRequest {
     @NotBlank(message = "Prompt is required")
     private String prompt;
-    
-    @NotNull(message = "Supervisor is required")
-    private UUID supervisorId;
-    
-    private Set<UUID> internIds;
 }
