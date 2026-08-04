@@ -100,6 +100,26 @@ pipeline {
             }
         }
 
+        // ============================================================
+        // DEVSECOPS: CONTAINER SECURITY SCANNING
+        // ============================================================
+        stage('Scan Docker Images (Trivy)') {
+            parallel {
+                stage('Scan Backend Image') {
+                    steps {
+                        // Scans the locally built backend image for High and Critical vulnerabilities
+                        sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --no-progress my-app-backend'
+                    }
+                }
+                stage('Scan Frontend Image') {
+                    steps {
+                        // Scans the locally built frontend image
+                        sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL --no-progress my-app-frontend'
+                    }
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
                 // Example: Deploying via Docker Compose or starting containers directly.
