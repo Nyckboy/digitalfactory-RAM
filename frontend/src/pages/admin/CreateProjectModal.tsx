@@ -2,6 +2,18 @@ import { useState, useEffect } from "react";
 import { adminService } from "../../lib/adminApi";
 import type { UserDTO } from "../../types/api";
 
+// New interfaces for the draft state
+interface AIDraftTask {
+  title: string;
+  description: string;
+}
+
+interface AIDraftProject {
+  title: string;
+  description: string;
+  tasks: AIDraftTask[];
+}
+
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,9 +25,9 @@ export const CreateProjectModal = ({
   onClose,
   onSuccess,
 }: CreateProjectModalProps) => {
-  // Mode toggle
   const [isAiMode, setIsAiMode] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
+  const [aiDraft, setAiDraft] = useState<AIDraftProject | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -51,6 +63,21 @@ export const CreateProjectModal = ({
     }
   }, [isOpen]);
 
+  // Clean up state when modal closes
+  const handleClose = () => {
+    setFormData({
+      title: "",
+      description: "",
+      supervisorId: "",
+      internIds: [],
+    });
+    setAiPrompt("");
+    setAiDraft(null);
+    setIsAiMode(false);
+    setError(null);
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   const handleInternToggle = (internId: string) => {
@@ -62,26 +89,57 @@ export const CreateProjectModal = ({
     }));
   };
 
+  const handleDraftTaskChange = (
+    index: number,
+    field: keyof AIDraftTask,
+    value: string,
+  ) => {
+    if (!aiDraft) return;
+    const updatedTasks = [...aiDraft.tasks];
+    updatedTasks[index] = { ...updatedTasks[index], [field]: value };
+    setAiDraft({ ...aiDraft, tasks: updatedTasks });
+  };
+
+  const handleRemoveDraftTask = (index: number) => {
+    if (!aiDraft) return;
+    const updatedTasks = aiDraft.tasks.filter((_, i) => i !== index);
+    setAiDraft({ ...aiDraft, tasks: updatedTasks });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    // If in AI Mode and we haven't generated a draft yet, generate it
+    if (isAiMode && !aiDraft) {
+      if (!aiPrompt.trim()) {
+        setError("Please provide a prompt for the AI to generate the project.");
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const draft = await adminService.generateProjectDraft(aiPrompt);
+        setAiDraft(draft);
+      } catch (err: any) {
+        setError(err.response?.data?.message || "Failed to generate AI draft.");
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    // If we reach here, we are either submitting a manual form or confirming an AI draft
     if (!formData.supervisorId || formData.internIds.length === 0) {
       setError("Please select a supervisor and at least one intern.");
       return;
     }
 
-    if (isAiMode && !aiPrompt.trim()) {
-      setError("Please provide a prompt for the AI to generate the project.");
-      return;
-    }
-
     setIsLoading(true);
     try {
-      if (isAiMode) {
-        // AI Generation Call
-        await adminService.generateProject({
-          prompt: aiPrompt,
+      if (isAiMode && aiDraft) {
+        // Step 2: Confirm and Save AI Draft
+        await adminService.confirmAIProject({
+          draft: aiDraft,
           supervisorId: formData.supervisorId,
           internIds: formData.internIds,
         });
@@ -91,20 +149,9 @@ export const CreateProjectModal = ({
       }
 
       onSuccess();
-      onClose();
-      // Reset state on success
-      setFormData({
-        title: "",
-        description: "",
-        supervisorId: "",
-        internIds: [],
-      });
-      setAiPrompt("");
-      setIsAiMode(false);
+      handleClose();
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || "Failed to process project request.",
-      );
+      setError(err.response?.data?.message || "Failed to save project.");
     } finally {
       setIsLoading(false);
     }
@@ -112,29 +159,42 @@ export const CreateProjectModal = ({
 
   return (
     <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg p-6 bg-surface-container-lowest border border-surface-container-highest rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto font-sans relative">
-        {/* Loading Overlay for AI Generation */}
-        {isLoading && isAiMode && (
-          <div className="absolute inset-0 z-10 bg-surface-container-lowest/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl">
-            <span
-              className="material-symbols-outlined text-primary-container text-4xl animate-pulse mb-3"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              auto_awesome
-            </span>
-            <p className="text-on-surface font-bold text-lg animate-pulse">
-              Structuring your project...
-            </p>
-            <p className="text-secondary text-sm mt-1">
-              Generating tasks and deadlines.
-            </p>
+      <div className="w-full max-w-2xl p-6 bg-surface-container-lowest border border-surface-container-highest rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto font-sans relative">
+        {/* Loading Overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 z-50 bg-surface-container-lowest/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl">
+            {isAiMode && !aiDraft ? (
+              <>
+                <span
+                  className="material-symbols-outlined text-primary-container text-4xl animate-pulse mb-3"
+                  style={{ fontVariationSettings: "'FILL' 1" }}
+                >
+                  auto_awesome
+                </span>
+                <p className="text-on-surface font-bold text-lg animate-pulse">
+                  Structuring your project...
+                </p>
+                <p className="text-secondary text-sm mt-1">
+                  Generating tasks and deadlines.
+                </p>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined animate-spin text-primary-container text-4xl mb-3">
+                  sync
+                </span>
+                <p className="text-on-surface font-bold text-lg">
+                  Saving Project...
+                </p>
+              </>
+            )}
           </div>
         )}
 
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-on-surface">New Project</h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-secondary hover:text-on-surface transition-colors disabled:opacity-50"
             disabled={isLoading}
           >
@@ -142,19 +202,24 @@ export const CreateProjectModal = ({
           </button>
         </div>
 
-        {/* Mode Toggle Tabs */}
+        {/* Mode Toggle Tabs (Disabled if reviewing draft) */}
         <div className="flex gap-6 mb-6 border-b border-surface-container-highest pb-0">
           <button
             type="button"
-            onClick={() => setIsAiMode(false)}
-            className={`pb-2 text-sm font-semibold transition-colors ${!isAiMode ? "text-primary-container border-b-2 border-primary-container" : "text-secondary hover:text-on-surface"}`}
+            onClick={() => {
+              setIsAiMode(false);
+              setAiDraft(null);
+            }}
+            disabled={!!aiDraft}
+            className={`pb-2 text-sm font-semibold transition-colors disabled:opacity-50 ${!isAiMode ? "text-primary-container border-b-2 border-primary-container" : "text-secondary hover:text-on-surface"}`}
           >
             Manual Creation
           </button>
           <button
             type="button"
             onClick={() => setIsAiMode(true)}
-            className={`pb-2 text-sm font-semibold transition-colors flex items-center gap-1.5 ${isAiMode ? "text-tertiary border-b-2 border-tertiary" : "text-secondary hover:text-on-surface"}`}
+            disabled={!!aiDraft}
+            className={`pb-2 text-sm font-semibold transition-colors flex items-center gap-1.5 disabled:opacity-50 ${isAiMode ? "text-tertiary border-b-2 border-tertiary" : "text-secondary hover:text-on-surface"}`}
           >
             <span className="material-symbols-outlined text-[16px]">
               auto_awesome
@@ -175,8 +240,8 @@ export const CreateProjectModal = ({
               </div>
             )}
 
-            {/* Conditional Input Rendering based on Mode */}
-            {isAiMode ? (
+            {/* AI Prompt Input (Step 1) */}
+            {isAiMode && !aiDraft && (
               <div className="bg-tertiary-fixed/30 p-4 rounded-lg border border-tertiary-fixed/50">
                 <label className="text-xs font-bold text-tertiary mb-2 flex items-center gap-1">
                   Project Prompt
@@ -189,14 +254,107 @@ export const CreateProjectModal = ({
                   className="w-full px-3 py-3 border border-tertiary-fixed rounded-lg bg-surface-container-lowest text-on-surface focus:ring-1 focus:ring-tertiary focus:border-tertiary outline-none resize-none transition-colors text-sm shadow-inner"
                   placeholder="e.g., We need a SaaS dashboard for a gym. It should include member management, subscription billing via Stripe, and a daily class schedule view."
                 />
-                <p className="text-[10px] text-tertiary/80 mt-2 italic flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[12px]">
-                    info
-                  </span>
-                  AI will automatically break this down into a full task board.
-                </p>
               </div>
-            ) : (
+            )}
+
+            {/* AI Draft Review UI (Step 2) */}
+            {isAiMode && aiDraft && (
+              <div className="bg-tertiary-fixed/10 p-4 rounded-lg border border-tertiary-fixed/30 space-y-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-sm font-bold text-tertiary flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[18px]">
+                      edit_note
+                    </span>{" "}
+                    Review Generated Draft
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setAiDraft(null)}
+                    className="text-xs text-tertiary hover:underline"
+                  >
+                    Discard & Start Over
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-on-surface mb-1">
+                    Generated Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={aiDraft.title}
+                    onChange={(e) =>
+                      setAiDraft({ ...aiDraft, title: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface focus:ring-1 focus:ring-tertiary focus:border-tertiary outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-on-surface mb-1">
+                    Generated Description
+                  </label>
+                  <textarea
+                    required
+                    rows={2}
+                    value={aiDraft.description}
+                    onChange={(e) =>
+                      setAiDraft({ ...aiDraft, description: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-outline-variant rounded-lg bg-surface-container-lowest text-on-surface focus:ring-1 focus:ring-tertiary focus:border-tertiary outline-none text-sm resize-none"
+                  />
+                </div>
+
+                <div className="pt-2 border-t border-tertiary-fixed/40">
+                  <label className="block text-xs font-semibold text-on-surface mb-3">
+                    Generated Tasks ({aiDraft.tasks.length})
+                  </label>
+                  <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-2 custom-scrollbar">
+                    {aiDraft.tasks.map((task, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-surface-container-lowest border border-outline-variant rounded-lg p-3 relative group"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveDraftTask(idx)}
+                          className="absolute top-2 right-2 text-secondary hover:text-error opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">
+                            delete
+                          </span>
+                        </button>
+                        <input
+                          type="text"
+                          required
+                          value={task.title}
+                          onChange={(e) =>
+                            handleDraftTaskChange(idx, "title", e.target.value)
+                          }
+                          className="w-full px-2 py-1 mb-2 border border-transparent hover:border-outline-variant focus:border-tertiary rounded text-sm font-semibold text-on-surface outline-none transition-colors"
+                        />
+                        <textarea
+                          required
+                          rows={2}
+                          value={task.description}
+                          onChange={(e) =>
+                            handleDraftTaskChange(
+                              idx,
+                              "description",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full px-2 py-1 border border-transparent hover:border-outline-variant focus:border-tertiary rounded text-xs text-secondary outline-none resize-none transition-colors"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Manual Entry Form */}
+            {!isAiMode && (
               <>
                 <div>
                   <label className="block text-xs font-semibold text-on-surface mb-1">
@@ -204,129 +362,129 @@ export const CreateProjectModal = ({
                   </label>
                   <input
                     type="text"
-                    required={!isAiMode}
+                    required
                     value={formData.title}
                     onChange={(e) =>
                       setFormData({ ...formData, title: e.target.value })
                     }
                     className="w-full px-3 py-3 border border-outline-variant rounded-lg bg-[#F1F3F5] text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors text-sm"
-                    placeholder="e.g., Spring Boot API Migration"
                   />
                 </div>
-
                 <div>
                   <label className="block text-xs font-semibold text-on-surface mb-1">
                     Description
                   </label>
                   <textarea
-                    required={!isAiMode}
+                    required
                     rows={3}
                     value={formData.description}
                     onChange={(e) =>
                       setFormData({ ...formData, description: e.target.value })
                     }
                     className="w-full px-3 py-3 border border-outline-variant rounded-lg bg-[#F1F3F5] text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none resize-none transition-colors text-sm"
-                    placeholder="Briefly describe the project goals..."
                   />
                 </div>
               </>
             )}
 
-            {/* Shared Fields (Supervisor & Interns) */}
-            <div>
-              <label className="block text-xs font-semibold text-on-surface mb-1">
-                Assign Supervisor
-              </label>
-              <select
-                required
-                value={formData.supervisorId}
-                onChange={(e) =>
-                  setFormData({ ...formData, supervisorId: e.target.value })
-                }
-                className="w-full px-3 py-3 border border-outline-variant rounded-lg bg-[#F1F3F5] text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors text-sm"
-              >
-                <option value="" disabled>
-                  Select a supervisor
-                </option>
-                {supervisors.map((sup) => (
-                  <option key={sup.id} value={sup.id}>
-                    {sup.firstName} {sup.lastName}
+            {/* User Assignments (Required for both modes before final save) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div>
+                <label className="block text-xs font-semibold text-on-surface mb-1">
+                  Assign Supervisor
+                </label>
+                <select
+                  required
+                  value={formData.supervisorId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, supervisorId: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-outline-variant rounded-lg bg-[#F1F3F5] text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-colors text-sm"
+                >
+                  <option value="" disabled>
+                    Select Supervisor
                   </option>
-                ))}
-              </select>
-            </div>
+                  {supervisors.map((sup) => (
+                    <option key={sup.id} value={sup.id}>
+                      {sup.firstName} {sup.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-on-surface mb-2">
-                Assign Interns
-              </label>
-              <div className="max-h-40 overflow-y-auto border border-outline-variant rounded-lg p-2 space-y-1 bg-[#F1F3F5]">
-                {interns.length === 0 ? (
-                  <p className="text-sm text-secondary p-2">
-                    No active interns found.
-                  </p>
-                ) : (
-                  interns.map((intern) => (
-                    <label
-                      key={intern.id}
-                      className="flex items-center space-x-3 p-2 hover:bg-surface-container-highest rounded cursor-pointer transition-colors"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.internIds.includes(intern.id)}
-                        onChange={() => handleInternToggle(intern.id)}
-                        className={`w-4 h-4 rounded ${isAiMode ? "text-tertiary focus:ring-tertiary" : "text-primary focus:ring-primary"} bg-surface-container-lowest border-outline-variant`}
-                      />
-                      <span className="text-sm text-on-surface font-medium">
-                        {intern.firstName} {intern.lastName}
-                      </span>
-                    </label>
-                  ))
-                )}
+              <div>
+                <label className="block text-xs font-semibold text-on-surface mb-2">
+                  Assign Interns
+                </label>
+                <div className="max-h-32 overflow-y-auto border border-outline-variant rounded-lg p-2 space-y-1 bg-[#F1F3F5]">
+                  {interns.length === 0 ? (
+                    <p className="text-sm text-secondary p-2">
+                      No interns found.
+                    </p>
+                  ) : (
+                    interns.map((intern) => (
+                      <label
+                        key={intern.id}
+                        className="flex items-center space-x-3 p-1.5 hover:bg-surface-container-highest rounded cursor-pointer transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.internIds.includes(intern.id)}
+                          onChange={() => handleInternToggle(intern.id)}
+                          className={`w-4 h-4 rounded ${isAiMode ? "text-tertiary focus:ring-tertiary" : "text-primary focus:ring-primary"} bg-surface-container-lowest border-outline-variant`}
+                        />
+                        <span className="text-xs text-on-surface font-medium">
+                          {intern.firstName} {intern.lastName}
+                        </span>
+                      </label>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
 
             <div className="flex justify-end gap-3 mt-8 pt-4 border-t border-surface-container-highest">
               <button
                 type="button"
-                onClick={onClose}
+                onClick={handleClose}
                 disabled={isLoading}
                 className="px-4 py-2 text-sm font-medium text-secondary hover:text-on-surface transition disabled:opacity-50"
               >
                 Cancel
               </button>
 
-              {/* FIXED BUTTON CLASSES HERE */}
               <button
                 type="submit"
                 disabled={
-                  isLoading || supervisors.length === 0 || interns.length === 0
+                  isLoading ||
+                  (isAiMode && aiDraft
+                    ? supervisors.length === 0 || interns.length === 0
+                    : false)
                 }
                 className={`px-6 py-2 text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center gap-2 ${
-                  isLoading || supervisors.length === 0 || interns.length === 0
-                    ? isAiMode
-                      ? "bg-tertiary text-on-tertiary opacity-70 cursor-not-allowed"
-                      : "bg-primary-container text-on-primary opacity-70 cursor-not-allowed"
-                    : isAiMode
-                      ? "bg-tertiary text-on-tertiary hover:bg-tertiary-container hover:text-on-tertiary-container"
-                      : "bg-primary-container text-on-primary hover:bg-primary"
+                  isAiMode
+                    ? "bg-tertiary text-on-tertiary hover:bg-tertiary-container hover:text-on-tertiary-container disabled:opacity-50 disabled:cursor-not-allowed"
+                    : "bg-primary-container text-on-primary hover:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 }`}
               >
-                {isLoading ? (
-                  isAiMode ? (
-                    "Generating..."
+                {isAiMode ? (
+                  aiDraft ? (
+                    <>
+                      <span className="material-symbols-outlined text-[16px]">
+                        check_circle
+                      </span>
+                      Confirm & Create
+                    </>
                   ) : (
-                    "Creating..."
-                  )
-                ) : (
-                  <>
-                    {isAiMode && (
+                    <>
                       <span className="material-symbols-outlined text-[16px]">
                         auto_awesome
                       </span>
-                    )}
-                    {isAiMode ? "Generate Project" : "Create Project"}
-                  </>
+                      Generate Draft
+                    </>
+                  )
+                ) : (
+                  "Create Project"
                 )}
               </button>
             </div>

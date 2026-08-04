@@ -142,3 +142,20 @@ export interface UpdateTaskPayload {
   deadline: string;
   assignedToId: string | null;
 }
+
+export interface AIDraftTask {
+  title: string;
+  description: string;
+}
+
+export interface AIDraftProject {
+  title: string;
+  description: string;
+  tasks: AIDraftTask[];
+}
+
+export interface ConfirmAIProjectPayload {
+  draft: AIDraftProject;
+  supervisorId: string;
+  internIds: string[];
+}

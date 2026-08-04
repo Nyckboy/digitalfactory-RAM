@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { PaginatedResponse, UserDTO, ProjectDTO, DashboardStats, ActivityLog, GenerateProjectPayload } from '../types/api';
+import type { PaginatedResponse, UserDTO, ProjectDTO, DashboardStats, ActivityLog, AIDraftProject, ConfirmAIProjectPayload } from '../types/api';
 
 export const adminService = {
   // Fetch Users
@@ -56,8 +56,13 @@ export const adminService = {
   return response.data;
   },
 
-  generateProject: async (payload: GenerateProjectPayload): Promise<ProjectDTO> => {
-  const response = await api.post('/admin/projects/generate', payload);
-  return response.data;
-},
+  generateProjectDraft: async (prompt: string): Promise<AIDraftProject> => {
+    const response = await api.post('/admin/projects/ai/draft', { prompt });
+    return response.data;
+  },
+
+  confirmAIProject: async (payload: ConfirmAIProjectPayload): Promise<ProjectDTO> => {
+    const response = await api.post('/admin/projects/ai/confirm', payload);
+    return response.data;
+  },
 };
