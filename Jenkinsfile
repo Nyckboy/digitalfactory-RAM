@@ -22,6 +22,21 @@ pipeline {
         }
 
         // ============================================================
+        // DEVSECOPS: SECRETS SCANNING
+        // ============================================================
+        stage('Secrets Scan (GitLeaks)') {
+            steps {
+                script {
+                    // Runs GitLeaks via a lightweight Docker container
+                    // It scans the entire repository for exposed passwords, keys, and tokens
+                    sh '''
+                    docker run --rm -v ${WORKSPACE}:/path zricethezav/gitleaks:latest detect --source="/path" -v
+                    '''
+                }
+            }
+        }
+
+        // ============================================================
         // DEVSECOPS: PARALLEL BUILD STAGE
         // ============================================================
         stage('Build & Test') {
