@@ -1,5 +1,7 @@
 package com.digitalfactory.platform.controller;
 
+import com.digitalfactory.platform.dto.AiProjectDraft;
+import com.digitalfactory.platform.dto.request.ProjectConfirmRequest;
 import com.digitalfactory.platform.dto.request.ProjectCreateRequest;
 import com.digitalfactory.platform.dto.request.ProjectGenerateRequest;
 import com.digitalfactory.platform.dto.request.ProjectUpdateRequest;
@@ -62,7 +64,8 @@ public class AdminController {
     @PostMapping("/projects")
     public ResponseEntity<?> createProject(@Valid @RequestBody ProjectCreateRequest request) {
         projectService.createProject(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Project created and assigned successfully"));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new MessageResponse("Project created and assigned successfully"));
     }
 
     @GetMapping("/projects")
@@ -75,8 +78,7 @@ public class AdminController {
     @PutMapping("/projects/{projectId}")
     public ResponseEntity<?> updateProject(
             @PathVariable UUID projectId,
-            @RequestBody ProjectUpdateRequest request
-    ) {
+            @RequestBody ProjectUpdateRequest request) {
         return ResponseEntity.ok(projectService.updateProject(projectId, request));
     }
 
@@ -97,9 +99,14 @@ public class AdminController {
         return ResponseEntity.ok(activityLogService.getRecentActivities(limit));
     }
 
-    @PostMapping("/projects/generate")
-    public ResponseEntity<ProjectResponse> generateProjectWithAi(@Valid @RequestBody ProjectGenerateRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.generateProjectWithAi(request));
+    @PostMapping("/projects/ai/draft")
+    public ResponseEntity<AiProjectDraft> draftProjectWithAi(@Valid @RequestBody ProjectGenerateRequest request) {
+        return ResponseEntity.ok(projectService.draftProjectWithAi(request));
+    }
+
+    @PostMapping("/projects/ai/confirm")
+    public ResponseEntity<ProjectResponse> confirmAiProject(@Valid @RequestBody ProjectConfirmRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.confirmAndSaveProject(request));
     }
 
     @GetMapping("/projects/ai/test")
