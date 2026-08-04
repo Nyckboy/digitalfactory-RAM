@@ -21,21 +21,28 @@ pipeline {
             }
         }
 
-        stage('Build Backend') {
-            steps {
-                dir('backend') {
-                    // Build the executable JAR
-                    sh 'mvn clean package -DskipTests'
+        // ============================================================
+        // DEVSECOPS: PARALLEL BUILD STAGE
+        // ============================================================
+        stage('Build & Test') {
+            parallel {
+                stage('Backend (Spring Boot)') {
+                    steps {
+                        dir('backend') {
+                            // Build the executable JAR
+                            sh 'mvn clean package -DskipTests'
+                        }
+                    }
                 }
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
-                    // Use pnpm as requested
-                    sh 'pnpm install'
-                    sh 'VITE_API_BASE_URL=/api pnpm build'
+                
+                stage('Frontend (React)') {
+                    steps {
+                        dir('frontend') {
+                            // Use pnpm as requested
+                            sh 'pnpm install'
+                            sh 'VITE_API_BASE_URL=/api pnpm build'
+                        }
+                    }
                 }
             }
         }
@@ -51,7 +58,6 @@ pipeline {
                         // Maven automatically detects SonarQube and runs the scan
                         script {
                             def cleanBranch = env.BRANCH_NAME ? env.BRANCH_NAME.replaceAll('/', '-') : 'main'
-                            sh 'mvn sonar:sonar'
                             sh "mvn sonar:sonar \
                                 -Dsonar.projectKey=com.digitalfactory.platform:${cleanBranch} \
                                 -Dsonar.projectName='Backend - ${cleanBranch}'"
