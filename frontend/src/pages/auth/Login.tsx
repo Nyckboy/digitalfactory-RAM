@@ -8,7 +8,7 @@ import type { UserRole } from "../../types/auth";
 interface JwtPayload {
   sub: string;
   role: UserRole;
-  userId: string;
+  id: string;
   firstName?: string;
   lastName?: string;
 }
@@ -33,7 +33,7 @@ export const Login = () => {
       const decoded = jwtDecode<JwtPayload>(token);
 
       const user = {
-        id: decoded.userId || "unknown-id",
+        id: decoded.id || "unknown-id",
         email: decoded.sub,
         role: decoded.role,
         firstName: decoded.firstName || "User",

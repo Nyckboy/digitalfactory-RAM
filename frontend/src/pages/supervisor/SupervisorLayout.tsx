@@ -1,8 +1,10 @@
 import { Outlet, NavLink } from "react-router";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useNotifications } from "../../context/NotificationContext";
 
 export const SupervisorLayout = () => {
   const { logout } = useAuthStore();
+  const { unreadCount, clearUnreadCount } = useNotifications();
 
   const navItemClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-4 px-3 py-3 rounded-lg font-medium transition-all duration-200 ${
@@ -23,9 +25,23 @@ export const SupervisorLayout = () => {
             Digital Factory
           </h1>
         </div>
-        <button onClick={logout} className="text-error font-medium text-sm">
-          Sign Out
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Mobile Notification Bell */}
+          <button
+            onClick={clearUnreadCount}
+            className="relative p-2 text-secondary hover:bg-surface-container-low rounded-full transition-colors duration-200"
+          >
+            <span className="material-symbols-outlined">notifications</span>
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-on-primary bg-primary-container border-2 border-surface-container-lowest rounded-full">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
+          <button onClick={logout} className="text-error font-medium text-sm">
+            Sign Out
+          </button>
+        </div>
       </nav>
 
       {/* SideNavBar (Desktop) */}
@@ -108,6 +124,22 @@ export const SupervisorLayout = () => {
                 disabled
               />
             </div>
+          </div>
+
+          {/* Desktop Trailing Actions */}
+          <div className="flex items-center gap-4 ml-4">
+            {/* Desktop Notification Bell */}
+            <button
+              onClick={clearUnreadCount}
+              className="relative p-2 text-secondary hover:bg-surface-container-low rounded-full transition-colors duration-200"
+            >
+              <span className="material-symbols-outlined">notifications</span>
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-on-primary bg-primary-container border-2 border-surface-container-lowest rounded-full">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </button>
           </div>
         </header>
 
