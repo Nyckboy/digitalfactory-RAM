@@ -25,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +40,7 @@ public class ProjectService {
     private final TaskRepository taskRepository;
     private final ActivityLogService activityLogService;
     private final AiGenerationService aiGenerationService;
+    private final NotificationService notificationService;
 
     @Transactional
     public Project createProject(ProjectCreateRequest request) {
@@ -80,6 +82,11 @@ public class ProjectService {
                 admin,
                 "created a new project:",
                 project.getTitle());
+
+        notificationService.createAndSendNotification(
+                supervisor,
+                "You have been assigned as the supervisor for a new generated project: " + project.getTitle()
+        );
 
         return projectRepository.save(project);
     }
@@ -175,7 +182,7 @@ public class ProjectService {
         User supervisor = userRepository.findById(request.getSupervisorId())
                 .orElseThrow(() -> new IllegalArgumentException("Supervisor not found"));
 
-        Set<User> interns = new java.util.HashSet<>();
+        Set<User> interns = new HashSet<>();
         if (request.getInternIds() != null && !request.getInternIds().isEmpty()) {
             interns.addAll(userRepository.findAllById(request.getInternIds()));
         }
@@ -194,7 +201,7 @@ public class ProjectService {
         Project savedProject = projectRepository.save(project);
 
         // 2. Save the tasks
-        java.time.LocalDateTime defaultDeadline = java.time.LocalDateTime.now().plusDays(14);
+        LocalDateTime defaultDeadline = LocalDateTime.now().plusDays(14);
 
         for (AiProjectDraft.AiTaskDraft taskDraft : draft.getTasks()) {
             Task task = Task.builder()
@@ -207,6 +214,19 @@ public class ProjectService {
                     .build();
             taskRepository.save(task);
         }
+
+        notificationService.createAndSendNotification(
+                supervisor,
+                "You have been assigned as the supervisor for a new AI-generated project: " + savedProject.getTitle()
+        );
+
+        // 4. Notify all assigned Interns
+        // for (User intern : interns) {
+        //     notificationService.createAndSendNotification(
+        //             intern,
+        //             "You have been assigned to a new project: " + savedProject.getTitle()
+        //     );
+        // }
 
         return ProjectResponse.fromEntity(savedProject);
     }

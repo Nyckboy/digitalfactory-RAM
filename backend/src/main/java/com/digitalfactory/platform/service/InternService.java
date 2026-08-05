@@ -25,6 +25,8 @@ public class InternService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final ActivityLogService activityLogService;
+    private final NotificationService notificationService;
+
 
     @Transactional(readOnly = true)
     public Page<TaskResponse> getMyTasks(String internEmail, int page, int size) {
@@ -56,7 +58,18 @@ public class InternService {
             "updated task status to " + request.getStatus().name() + " on", 
             task.getTitle()
         );
-
+        
+        if (request.getStatus() != null && request.getStatus() == TaskStatus.IN_REVIEW) {
+            User supervisor = task.getProject().getSupervisor();
+            User intern = task.getAssignedTo();
+            
+            if (supervisor != null && intern != null) {
+                notificationService.createAndSendNotification(
+                    supervisor, 
+                    "Task ready for review: '" + task.getTitle() + "' (Completed by " + intern.getFirstName() + " " + intern.getLastName() + ")"
+                );
+            }
+        }
         return TaskResponse.fromEntity(taskRepository.save(task));
     }
 
