@@ -12,6 +12,7 @@ pipeline {
         DB_PASSWORD = credentials('db-password')
         JWT_SECRET  = credentials('jwt-secret')
         AI_API_KEY  = credentials('ai-api-key')
+        NVD_API_KEY = credentials('nvd-api-key')
     }
 
     stages {
@@ -72,7 +73,7 @@ pipeline {
                         dir('backend') {
                             // Uses OWASP to check Java dependencies for known CVEs
                             // Fails the build only if High/Critical flaws (Score 7.0+) are found
-                            sh 'mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7.0 -DknownExploitedEnabled=false'
+                            sh 'mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7.0 -DknownExploitedEnabled=false -DnvdApiKey=$NVD_API_KEY'
                         }
                     }
                 }
