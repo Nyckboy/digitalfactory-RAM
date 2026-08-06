@@ -1,10 +1,9 @@
 import { Outlet, NavLink } from "react-router";
 import { useAuthStore } from "../../store/useAuthStore";
-import { useNotifications } from "../../context/NotificationContext";
+import { NotificationDropdown } from "../../components/shared/NotificationDropdown";
 
 export const SupervisorLayout = () => {
   const { logout } = useAuthStore();
-  const { unreadCount, clearUnreadCount } = useNotifications();
 
   const navItemClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-4 px-3 py-3 rounded-lg font-medium transition-all duration-200 ${
@@ -26,18 +25,8 @@ export const SupervisorLayout = () => {
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          {/* Mobile Notification Bell */}
-          <button
-            onClick={clearUnreadCount}
-            className="relative p-2 text-secondary hover:bg-surface-container-low rounded-full transition-colors duration-200"
-          >
-            <span className="material-symbols-outlined">notifications</span>
-            {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-on-primary bg-primary-container border-2 border-surface-container-lowest rounded-full">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            )}
-          </button>
+          {/* Mobile Notification Dropdown */}
+          <NotificationDropdown />
           <button onClick={logout} className="text-error font-medium text-sm">
             Sign Out
           </button>
@@ -77,24 +66,6 @@ export const SupervisorLayout = () => {
             <span className="material-symbols-outlined">groups</span>
             <span className="text-sm">Team Directory</span>
           </NavLink>
-
-          {/* GREYED OUT LINKS (WIP) */}
-          <div className="opacity-40 pointer-events-none select-none mt-2 space-y-1.5">
-            <a
-              className="flex items-center gap-4 px-3 py-3 rounded-lg text-secondary font-medium"
-              href="#"
-            >
-              <span className="material-symbols-outlined">checklist</span>
-              <span className="text-sm">Tasks (WIP)</span>
-            </a>
-            <a
-              className="flex items-center gap-4 px-3 py-3 rounded-lg text-secondary font-medium"
-              href="#"
-            >
-              <span className="material-symbols-outlined">leaderboard</span>
-              <span className="text-sm">Analytics (WIP)</span>
-            </a>
-          </div>
         </nav>
 
         <div className="mt-auto space-y-1.5 pt-8 border-t border-surface-container-highest">
@@ -108,7 +79,7 @@ export const SupervisorLayout = () => {
         </div>
       </aside>
 
-      {/* Main Content Area - Added min-w-0 and max-w-full to prevent flex blowout */}
+      {/* Main Content Area */}
       <main className="flex-1 md:ml-64 flex flex-col min-h-screen min-w-0 max-w-full">
         {/* TopNavBar (Desktop) */}
         <header className="hidden md:flex justify-between items-center px-6 w-full sticky top-0 z-30 h-16 bg-surface-container-lowest/80 backdrop-blur-md border-b border-surface-container-highest">
@@ -119,7 +90,7 @@ export const SupervisorLayout = () => {
               </span>
               <input
                 className="w-full pl-10 pr-3 py-2 bg-surface-container-low border border-transparent rounded-lg text-sm transition-colors outline-none h-10"
-                placeholder="Search projects (WIP)..."
+                placeholder="Search projects..."
                 type="text"
                 disabled
               />
@@ -128,18 +99,8 @@ export const SupervisorLayout = () => {
 
           {/* Desktop Trailing Actions */}
           <div className="flex items-center gap-4 ml-4">
-            {/* Desktop Notification Bell */}
-            <button
-              onClick={clearUnreadCount}
-              className="relative p-2 text-secondary hover:bg-surface-container-low rounded-full transition-colors duration-200"
-            >
-              <span className="material-symbols-outlined">notifications</span>
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-on-primary bg-primary-container border-2 border-surface-container-lowest rounded-full">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </button>
+            {/* Desktop Notification Dropdown */}
+            <NotificationDropdown />
           </div>
         </header>
 
