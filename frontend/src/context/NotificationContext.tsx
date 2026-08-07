@@ -1,14 +1,23 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { Client } from "@stomp/stompjs";
 import { toast } from "sonner";
-import { useAuthStore } from "../store/useAuthStore"; // Adjust path if needed
+import { useAuthStore } from "../store/useAuthStore";
+import {
+  notificationService,
+  type NotificationDTO,
+} from "../lib/notificationApi";
 
-// Define the shape of our context
 interface NotificationContextType {
   unreadCount: number;
-  notifications: string[];
-  clearUnreadCount: () => void;
-  clearAllNotifications: () => void;
+  notifications: NotificationDTO[];
+  markAsRead: (id: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -18,96 +27,120 @@ const NotificationContext = createContext<NotificationContextType | undefined>(
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // Grab BOTH user and token from the store
   const { user, token } = useAuthStore();
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [notifications, setNotifications] = useState<string[]>([]);
+
+  const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
+
+  // Dynamically calculate unread count based on the state array
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  // 1. Fetch historical unread notifications on load
+  const fetchUnreadNotifications = useCallback(async () => {
+    if (!user) return;
+    try {
+      const history = await notificationService.getUnread();
+      setNotifications(history);
+    } catch (error) {
+      console.error("Failed to fetch notification history:", error);
+    }
+  }, [user]);
 
   useEffect(() => {
-    console.log("Current Auth User Object:", user);
-    // If there is no authenticated user or token, do not connect.
+    if (user && token) {
+      fetchUnreadNotifications();
+    }
+  }, [user, token, fetchUnreadNotifications]);
+
+  // 2. WebSocket Connection
+  useEffect(() => {
     if (!user || !user.id || !token) return;
 
-    // 1. Instantiate the STOMP client
     const stompClient = new Client({
       brokerURL: "ws://localhost:8080/ws/websocket",
-      connectHeaders: {
-        Authorization: `Bearer ${token}`, // Pass the JWT from your store here
-      },
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      reconnectDelay: 5000,
 
-      debug: (str) => {
-        console.log('STOMP DEBUG: ', str);
-      },
-
-      reconnectDelay: 5000, // Attempt to reconnect every 5 seconds if dropped
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-
-      // 2. Handle successful connection
       onConnect: () => {
-        console.log("Connected to STOMP broker with JWT");
-
-        // 3. Subscribe to the user's private notification queue
+        console.log('Connected to STOMP broker');
+        
         stompClient.subscribe(`/queue/notifications/${user.id}`, (message) => {
           if (message.body) {
-            const notificationText = message.body;
-
-            // Update local state
-            setNotifications((prev) => [notificationText, ...prev]);
-            setUnreadCount((prev) => prev + 1);
-
-            // 4. Trigger the global UI toast
-            toast.info(notificationText, {
+            let newNotif: NotificationDTO;
+            
+            try {
+              // 1. Try to parse it as a JSON object (for the new backend logic)
+              newNotif = JSON.parse(message.body);
+              
+              // Fallback just in case the backend sends a JSON string that lacks an ID
+              if (!newNotif.id) {
+                newNotif.id = `temp-${Date.now()}`;
+                newNotif.read = false;
+              }
+            } catch (err) {
+              // 2. If JSON.parse fails, it's a plain string. Wrap it manually!
+              newNotif = {
+                id: `temp-${Date.now()}`, // Generate a temporary ID for React keys
+                message: message.body,
+                read: false,
+              };
+            }
+            
+            // 3. Update the UI
+            setNotifications((prev) => [newNotif, ...prev]);
+            
+            toast.info(newNotif.message, {
               duration: 5000,
-              position: "top-right",
+              position: 'top-right',
             });
           }
         });
       },
-
-      onStompError: (frame) => {
-        console.error("Broker reported error: " + frame.headers["message"]);
-        console.error("Additional details: " + frame.body);
-      },
-
-      onWebSocketError: (event) => {
-        console.error("WebSocket connection error:", event);
-      },
+      onStompError: (frame) =>
+        console.error("Broker error:", frame.headers["message"]),
+      onWebSocketError: (event) => console.error("WebSocket error:", event),
     });
 
-    // Activate the client
     stompClient.activate();
 
-    // 5. Cleanup: Disconnect cleanly when the user logs out or the component unmounts
     return () => {
-      if (stompClient.active) {
-        stompClient.deactivate();
-        console.log("Disconnected from STOMP broker");
-      }
+      if (stompClient.active) stompClient.deactivate();
     };
-  }, [user, token]); // Re-run if the user or token changes
+  }, [user, token]);
 
-  const clearUnreadCount = () => setUnreadCount(0);
-  const clearAllNotifications = () => {
-    setNotifications([]);
-    setUnreadCount(0);
+  // 3. Mark single notification as read
+  const markAsRead = async (id: string) => {
+    // Optimistically update UI
+    setNotifications((prev) =>
+      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif)),
+    );
+    try {
+      await notificationService.markAsRead(id);
+    } catch (error) {
+      console.error("Failed to mark notification as read", error);
+      // Optional: Revert state on failure
+    }
+  };
+
+  // 4. Mark all as read
+  const markAllAsRead = async () => {
+    // Optimistically update UI
+    setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
+    try {
+      await notificationService.markAllAsRead();
+    } catch (error) {
+      console.error("Failed to clear notifications", error);
+    }
   };
 
   return (
     <NotificationContext.Provider
-      value={{
-        unreadCount,
-        notifications,
-        clearUnreadCount,
-        clearAllNotifications,
-      }}
+      value={{ unreadCount, notifications, markAsRead, markAllAsRead }}
     >
       {children}
     </NotificationContext.Provider>
   );
 };
 
-// Custom hook for easy consumption
 export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (context === undefined) {
