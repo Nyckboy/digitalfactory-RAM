@@ -29,7 +29,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<postgresql.version>42.7.12</postgresql.version>
-		<tomcat.version>11.0.25</tomcat.version>
+		<tomcat.version>11.0.24</tomcat.version>
     <log4j2.version>2.25.5</log4j2.version>
 		<jackson-2-bom.version>2.21.5</jackson-2-bom.version>
 	</properties>
@@ -157,6 +157,25 @@
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
 					<version>3.11.0.3922</version>
+			</plugin>
+			<plugin>
+					<groupId>org.owasp</groupId>
+					<artifactId>dependency-check-maven</artifactId>
+					<version>13.0.0</version>
+					<configuration>
+							<!-- Point this to the file you created in Step 2 -->
+							<suppressionFiles>
+									<suppressionFile>suppression.xml</suppressionFile>
+							</suppressionFiles>
+							<failBuildOnCVSS>7.0</failBuildOnCVSS>
+					</configuration>
+					<executions>
+							<execution>
+									<goals>
+											<goal>check</goal>
+									</goals>
+							</execution>
+					</executions>
 			</plugin>
 		</plugins>
 	</build>
