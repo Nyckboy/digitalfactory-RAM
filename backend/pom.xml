@@ -32,6 +32,18 @@
 		<tomcat.version>11.0.24</tomcat.version>
     <log4j2.version>2.25.5</log4j2.version>
 		<jackson-2-bom.version>2.21.5</jackson-2-bom.version>
+		<sonar.coverage.exclusions>
+        **/config/**,
+				**/controller/**,
+        **/dto/**,
+				**/exception/**,
+        **/model/**,
+        **/entity/**,
+				**/repository/**,
+        **/security/**,
+				**/service/**,
+        **/*Application.java
+    </sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
