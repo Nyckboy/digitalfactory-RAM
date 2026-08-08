@@ -13,6 +13,8 @@ import { SupervisorProjectsView } from "./pages/supervisor/SupervisorProjectsVie
 import { SupervisorTeamView } from "./pages/supervisor/SupervisorTeamView";
 import { InternLayout } from "./pages/intern/InternLayout";
 import { InternTaskBoard } from "./pages/intern/InternTaskBoard";
+import { NotificationProvider } from "./context/NotificationContext";
+import { Toaster } from "sonner";
 
 const router = createBrowserRouter([
   {
@@ -85,5 +87,10 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <NotificationProvider>
+      <Toaster richColors position="top-right" />
+      <RouterProvider router={router} />
+    </NotificationProvider>
+  );
 }

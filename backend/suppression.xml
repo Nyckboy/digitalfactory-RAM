@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <notes><![CDATA[
+            Suppress CVE-2026-66299. This vulnerability only affects the Tomcat examples web application, 
+            which is not included or deployed in tomcat-embed-core.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat-embed-.*$</packageUrl>
+        <cve>CVE-2026-66299</cve>
+    </suppress>
+</suppressions>

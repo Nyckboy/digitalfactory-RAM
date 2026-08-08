@@ -32,6 +32,7 @@ public class AuthService {
         // Inject custom claims (The Role)
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", user.getRole().name());
+        extraClaims.put("id", user.getId().toString());
         
         // Generate token WITH the extra claims
         return jwtService.generateToken(extraClaims, user);

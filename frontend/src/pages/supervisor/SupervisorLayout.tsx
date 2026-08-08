@@ -1,5 +1,6 @@
 import { Outlet, NavLink } from "react-router";
 import { useAuthStore } from "../../store/useAuthStore";
+import { NotificationDropdown } from "../../components/shared/NotificationDropdown";
 
 export const SupervisorLayout = () => {
   const { logout } = useAuthStore();
@@ -23,9 +24,13 @@ export const SupervisorLayout = () => {
             Digital Factory
           </h1>
         </div>
-        <button onClick={logout} className="text-error font-medium text-sm">
-          Sign Out
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Mobile Notification Dropdown */}
+          <NotificationDropdown />
+          <button onClick={logout} className="text-error font-medium text-sm">
+            Sign Out
+          </button>
+        </div>
       </nav>
 
       {/* SideNavBar (Desktop) */}
@@ -61,24 +66,6 @@ export const SupervisorLayout = () => {
             <span className="material-symbols-outlined">groups</span>
             <span className="text-sm">Team Directory</span>
           </NavLink>
-
-          {/* GREYED OUT LINKS (WIP) */}
-          <div className="opacity-40 pointer-events-none select-none mt-2 space-y-1.5">
-            <a
-              className="flex items-center gap-4 px-3 py-3 rounded-lg text-secondary font-medium"
-              href="#"
-            >
-              <span className="material-symbols-outlined">checklist</span>
-              <span className="text-sm">Tasks (WIP)</span>
-            </a>
-            <a
-              className="flex items-center gap-4 px-3 py-3 rounded-lg text-secondary font-medium"
-              href="#"
-            >
-              <span className="material-symbols-outlined">leaderboard</span>
-              <span className="text-sm">Analytics (WIP)</span>
-            </a>
-          </div>
         </nav>
 
         <div className="mt-auto space-y-1.5 pt-8 border-t border-surface-container-highest">
@@ -92,7 +79,7 @@ export const SupervisorLayout = () => {
         </div>
       </aside>
 
-      {/* Main Content Area - Added min-w-0 and max-w-full to prevent flex blowout */}
+      {/* Main Content Area */}
       <main className="flex-1 md:ml-64 flex flex-col min-h-screen min-w-0 max-w-full">
         {/* TopNavBar (Desktop) */}
         <header className="hidden md:flex justify-between items-center px-6 w-full sticky top-0 z-30 h-16 bg-surface-container-lowest/80 backdrop-blur-md border-b border-surface-container-highest">
@@ -103,11 +90,17 @@ export const SupervisorLayout = () => {
               </span>
               <input
                 className="w-full pl-10 pr-3 py-2 bg-surface-container-low border border-transparent rounded-lg text-sm transition-colors outline-none h-10"
-                placeholder="Search projects (WIP)..."
+                placeholder="Search projects..."
                 type="text"
                 disabled
               />
             </div>
+          </div>
+
+          {/* Desktop Trailing Actions */}
+          <div className="flex items-center gap-4 ml-4">
+            {/* Desktop Notification Dropdown */}
+            <NotificationDropdown />
           </div>
         </header>
 

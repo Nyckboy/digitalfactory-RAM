@@ -32,6 +32,18 @@
 		<tomcat.version>11.0.24</tomcat.version>
     <log4j2.version>2.25.5</log4j2.version>
 		<jackson-2-bom.version>2.21.5</jackson-2-bom.version>
+		<sonar.coverage.exclusions>
+        **/config/**,
+				**/controller/**,
+        **/dto/**,
+				**/exception/**,
+        **/model/**,
+        **/entity/**,
+				**/repository/**,
+        **/security/**,
+				**/service/**,
+        **/*Application.java
+    </sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -73,6 +85,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
@@ -97,6 +114,10 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
+		<dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-websocket</artifactId>
+    </dependency>
 	</dependencies>
 
 	<build>
@@ -154,6 +175,46 @@
 					<artifactId>sonar-maven-plugin</artifactId>
 					<version>3.11.0.3922</version>
 			</plugin>
+			<plugin>
+					<groupId>org.owasp</groupId>
+					<artifactId>dependency-check-maven</artifactId>
+					<version>13.0.0</version>
+					<configuration>
+							<!-- Point this to the file you created in Step 2 -->
+							<suppressionFiles>
+									<suppressionFile>suppression.xml</suppressionFile>
+							</suppressionFiles>
+							<failBuildOnCVSS>7.0</failBuildOnCVSS>
+					</configuration>
+					<executions>
+							<execution>
+									<goals>
+											<goal>check</goal>
+									</goals>
+							</execution>
+					</executions>
+			</plugin>
+			<plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.12</version> <!-- Compatible with Java 21 -->
+        <executions>
+          <!-- Attaches JaCoCo to the JVM before tests run -->
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <!-- Generates the report after tests finish -->
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 		</plugins>
 	</build>
 
