@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -201,7 +202,7 @@ public class ProjectService {
         Project savedProject = projectRepository.save(project);
 
         // 2. Save the tasks
-        LocalDateTime defaultDeadline = LocalDateTime.now().plusDays(14);
+        LocalDateTime defaultDeadline = LocalDateTime.now(ZoneId.systemDefault()).plusDays(14);
 
         for (AiProjectDraft.AiTaskDraft taskDraft : draft.getTasks()) {
             Task task = Task.builder()
