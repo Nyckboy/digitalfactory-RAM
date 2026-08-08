@@ -46,7 +46,7 @@ pipeline {
                     steps {
                         dir('backend') {
                             // Build the executable JAR
-                            sh 'mvn clean package -DskipTests'
+                            sh 'mvn clean package'
                         }
                     }
                 }
