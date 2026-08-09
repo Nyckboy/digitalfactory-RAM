@@ -56,7 +56,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!user || !user.id || !token) return;
 
     const stompClient = new Client({
-      brokerURL: "ws://localhost:8080/ws/websocket",
+      brokerURL: import.meta.env.VITE_API_SOCKET_URL || "ws://localhost:8080/ws/websocket",
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
 
