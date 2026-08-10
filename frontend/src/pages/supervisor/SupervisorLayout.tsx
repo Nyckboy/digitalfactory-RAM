@@ -13,7 +13,7 @@ export const SupervisorLayout = () => {
     }`;
 
   return (
-    <div className="bg-background text-on-surface font-sans min-h-screen flex">
+    <div className="bg-background text-on-surface font-sans min-h-screen flex flex-col md:flex-row">
       {/* Mobile Top Nav */}
       <nav className="md:hidden flex justify-between items-center px-6 w-full sticky top-0 z-50 h-16 bg-surface-container-lowest shadow-sm border-b border-surface-container-highest">
         <div className="flex items-center gap-2">
