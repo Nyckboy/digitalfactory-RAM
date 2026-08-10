@@ -56,7 +56,7 @@ pipeline {
                         dir('frontend') {
                             // Use pnpm as requested
                             sh 'pnpm install'
-                            sh 'VITE_API_BASE_URL=/api VITE_API_SOCKET_URL=ws://localhost:8082/ws/websocket pnpm build'
+                            sh 'VITE_API_BASE_URL=/api VITE_API_SOCKET_URL=ws://116.203.28.139:8082/ws/websocket pnpm build'
                         }
                     }
                 }
