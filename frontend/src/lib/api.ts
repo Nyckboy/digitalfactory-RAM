@@ -14,7 +14,8 @@ api.interceptors.request.use(
   (config) => {
     // Read the token directly from the Zustand store
     const token = useAuthStore.getState().token;
-    if (token) {
+    const isLoginRequest = config.url?.includes('/login');
+    if (token && !isLoginRequest) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
