@@ -1,0 +1,129 @@
+\chapter{Analyse et conception}
+\section{Identification des acteurs}
+\begin{table}[h]
+\centering
+\caption{Acteurs de la plateforme}
+\begin{tabularx}{\textwidth}{p{3cm}Y}
+\toprule
+\textbf{Acteur} & \textbf{Rôle principal} \\
+\midrule
+SuperAdmin & Administre les comptes, crée les projets, affecte les membres et utilise l'IA pour préparer des propositions de projets. \\
+Supervisor & Organise les tâches, suit les stagiaires, examine les soumissions et formule des commentaires. \\
+Intern & Consulte son projet, réalise les tâches, dépose ses livrables et répond aux retours. \\
+Service IA & Génère une proposition de projet et une liste de tâches à partir d'une instruction fournie par le SuperAdmin. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Besoins fonctionnels}
+\begin{itemize}
+  \item Authentification et contrôle des accès selon le rôle utilisateur.
+  \item Gestion des encadrants et des stagiaires : création, modification et désactivation.
+  \item Création, modification et consultation des projets ; affectation d'un encadrant et d'un ou plusieurs stagiaires.
+  \item Création de tâches avec description, échéance, priorité et état d'avancement.
+  \item Soumission de réponses, de fichiers et de liens externes (GitHub, GitLab, Figma, Google Drive, etc.).
+  \item Commentaires sur les soumissions et réponses entre l'encadrant et le stagiaire.
+  \item Visualisation des tableaux de bord et du progrès des projets.
+  \item Génération assistée par IA : le SuperAdmin rédige une consigne ; le système propose un projet et ses tâches ; le SuperAdmin peut relire, modifier puis confirmer ou rejeter la proposition.
+\end{itemize}
+
+\section{Besoins non fonctionnels}
+\begin{itemize}
+  \item \textbf{Sécurité :} authentification par jeton JWT, gestion des rôles, contrôle des accès et protection des secrets hors du code source.
+  \item \textbf{Qualité :} analyse statique et contrôle de qualité par SonarQube.
+  \item \textbf{Fiabilité :} tests automatisés, vérification des dépendances et analyse des images de conteneurs.
+  \item \textbf{Maintenabilité :} séparation frontend/backend, API REST documentable et typage TypeScript.
+  \item \textbf{Traçabilité :} suivi des statuts, des commentaires et des activités relatives aux projets.
+\end{itemize}
+
+\section{Diagramme de cas d'utilisation}
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[font=\small, actor/.style={draw,rounded corners,fill=lightblue,minimum width=2.2cm,minimum height=.65cm,align=center}, usecase/.style={draw,ellipse,minimum width=3.1cm,minimum height=.7cm,align=center}, >=Latex]
+\node[actor] (admin) at (0,3) {SuperAdmin};
+\node[actor] (sup) at (0,0) {Supervisor};
+\node[actor] (intern) at (0,-3) {Intern};
+\node[actor] (ai) at (11,3) {Service IA};
+\node[usecase] (users) at (5,3) {Gérer les utilisateurs};
+\node[usecase] (project) at (5,1.4) {Gérer les projets et affectations};
+\node[usecase] (gen) at (8,2.1) {Générer puis valider un projet};
+\node[usecase] (tasks) at (5,-.3) {Gérer les tâches};
+\node[usecase] (submit) at (5,-2) {Soumettre un livrable};
+\node[usecase] (comment) at (8,-1.2) {Commenter et suivre l'avancement};
+\draw (admin)--(users) (admin)--(project) (admin)--(gen) (ai)--(gen);
+\draw (sup)--(project) (sup)--(tasks) (sup)--(comment);
+\draw (intern)--(tasks) (intern)--(submit) (intern)--(comment);
+\end{tikzpicture}
+\caption{Vue synthétique des cas d'utilisation}
+\end{figure}
+
+\section{Modèle conceptuel des données}
+La plateforme s'appuie sur les entités principales \textit{User}, \textit{Project}, \textit{Task}, \textit{Submission}, \textit{Attachment} et \textit{Comment}. Un projet est supervisé par un encadrant et peut associer plusieurs stagiaires. Les tâches appartiennent à un projet ; les soumissions et leurs pièces jointes sont rattachées à une tâche.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[font=\small, entity/.style={draw,rounded corners,fill=lightblue,align=center,minimum width=2.25cm,minimum height=.8cm}, rel/.style={-Latex,thick,ramblue}]
+\node[entity] (user) {User\\id, rôle, email};
+\node[entity,right=2.2cm of user] (project) {Project\\id, statut, supervisor};
+\node[entity,below=1.6cm of project] (task) {Task\\id, priorité, statut};
+\node[entity,left=2.2cm of task] (submission) {Submission\\id, notes, date};
+\node[entity,below=1.6cm of submission] (attachment) {Attachment\\type, chemin ou URL};
+\node[entity,right=2.2cm of submission] (comment) {Comment\\contenu, auteur};
+\draw[rel] (user)--node[above]{supervise}(project);
+\draw[rel] (project)--node[right]{contient}(task);
+\draw[rel] (task)--node[below]{reçoit}(submission);
+\draw[rel] (submission)--node[left]{possède}(attachment);
+\draw[rel] (submission)--node[below]{reçoit}(comment);
+\end{tikzpicture}
+\caption{Modèle conceptuel simplifié}
+\end{figure}
+
+\section{Architecture de haut niveau}
+L'interface React communique avec une API REST Spring Boot. L'API applique les règles métiers et de sécurité, puis persiste les données dans PostgreSQL. L'intégration avec le service IA est utilisée exclusivement pour préparer des brouillons soumis à la validation du SuperAdmin. Jenkins orchestre la construction, les contrôles qualité et sécurité, la création des images Docker et le déploiement.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[font=\small, box/.style={draw,rounded corners,fill=lightblue,minimum width=2.4cm,minimum height=.8cm,align=center}, >=Latex]
+\node[box] (client) {Navigateur\\React + TypeScript};
+\node[box,right=1.2cm of client] (api) {API REST\\Spring Boot};
+\node[box,right=1.2cm of api] (db) {PostgreSQL};
+\node[box,below=1.3cm of api] (ai) {Service IA\\Génération de brouillons};
+\node[box,above=1.3cm of api] (jenkins) {Jenkins\\CI/CD et DevSecOps};
+\draw[-Latex,thick] (client)--node[above]{HTTPS / API}(api);
+\draw[-Latex,thick] (api)--(db);
+\draw[-Latex,thick] (api)--(ai);
+\draw[-Latex,thick] (jenkins)--(api);
+\end{tikzpicture}
+\caption{Architecture de haut niveau de Digital Factory}
+\end{figure}
+
+\section{Scénario de séquence : génération assistée d'un projet}
+\begin{enumerate}
+  \item Le SuperAdmin saisit une consigne décrivant le projet souhaité.
+  \item L'API transmet la demande au service IA.
+  \item Le service IA renvoie un brouillon de projet contenant une description et des tâches proposées.
+  \item Le SuperAdmin relit et peut modifier le brouillon.
+  \item Après confirmation, l'API enregistre le projet et ses tâches dans PostgreSQL.
+\end{enumerate}
+
+\section{Planification prévisionnelle}
+\begin{longtable}{p{5.2cm}ccccccccccc}
+\caption{Planning prévisionnel du 1\textsuperscript{er} juillet au 15 septembre}\\
+\toprule
+\textbf{Activité} & \textbf{J1} & \textbf{J2} & \textbf{J3} & \textbf{J4} & \textbf{A1} & \textbf{A2} & \textbf{A3} & \textbf{A4} & \textbf{S1} & \textbf{S2} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Activité} & \textbf{J1} & \textbf{J2} & \textbf{J3} & \textbf{J4} & \textbf{A1} & \textbf{A2} & \textbf{A3} & \textbf{A4} & \textbf{S1} & \textbf{S2} \\
+\midrule
+\endhead
+Analyse et initialisation & \cellcolor{ramblue} & \cellcolor{ramblue} & & & & & & & & \\
+Développement backend & & \cellcolor{ramblue} & \cellcolor{ramblue} & \cellcolor{ramblue} & \cellcolor{ramblue} & & & & & \\
+Développement frontend + intégration & & & \cellcolor{ramblue} & \cellcolor{ramblue} & \cellcolor{ramblue} & \cellcolor{ramblue} & & & & \\
+CI/CD et conteneurisation & & & & & \cellcolor{ramblue} & \cellcolor{ramblue} & \cellcolor{ramblue} & & & \\
+Tests de sécurité et qualité & & & & & & \cellcolor{ramblue} & \cellcolor{ramblue} & \cellcolor{ramblue} & & \\
+Recette, corrections et documentation & & & & & & & & \cellcolor{ramblue} & \cellcolor{ramblue} & \cellcolor{ramblue} \\
+Rédaction du rapport & & & & & & & & \cellcolor{ramblue} & \cellcolor{ramblue} & \cellcolor{ramblue} \\
+\bottomrule
+\end{longtable}
+\textit{Légende : J = juillet, A = août, S = septembre ; une cellule bleue indique une période prévue de réalisation.}

@@ -1,0 +1,129 @@
+% Rapport Digital Factory - Compiler avec: pdflatex main.tex (deux fois)
+\documentclass[11pt,a4paper,oneside]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{lastpage}
+
+\definecolor{ramblue}{HTML}{003B71}
+\definecolor{ramred}{HTML}{C8102E}
+\definecolor{lightblue}{HTML}{EAF2F8}
+\hypersetup{colorlinks=true,linkcolor=ramblue,urlcolor=ramblue,citecolor=ramblue,pdftitle={Digital Factory}}
+\setlist[itemize]{noitemsep,topsep=4pt}
+\setlength{\parskip}{5pt}
+\setlength{\parindent}{0pt}
+\titleformat{\chapter}[display]{\bfseries\color{ramblue}\Huge}{\chaptername\ \thechapter}{10pt}{\Huge}
+\titleformat{\section}{\Large\bfseries\color{ramblue}}{\thesection}{0.7em}{}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Digital Factory}
+\rhead{\small Royal Air Maroc}
+\cfoot{\small \thepage~/~\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{ramblue}\leaders\hrule height \headrulewidth\hfill}}
+
+\newcommand{\placeholder}[1]{\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering\textit{#1}}}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\begin{document}
+\begin{titlepage}
+\centering
+\vspace*{1cm}
+{\Large \textbf{[Nom de l'établissement]}}\\[0.3cm]
+{\large [Filière / niveau]}\\[1.6cm]
+{\color{ramblue}\rule{\textwidth}{1.2pt}}\\[0.5cm]
+{\Huge\bfseries Rapport de stage}\\[0.5cm]
+{\Large\bfseries Conception et développement d'une plateforme de gestion des projets de stage pour la Digital Factory}\\[0.6cm]
+{\color{ramred}\rule{\textwidth}{1.2pt}}\\[1.4cm]
+\begin{minipage}{0.44\textwidth}
+\raggedright\textbf{Réalisé par :}\\
+[Nom et prénom]\\
+[CIN / code étudiant, si nécessaire]
+\end{minipage}\hfill
+\begin{minipage}{0.44\textwidth}
+\raggedleft\textbf{Encadré par :}\\
+[Nom de l'encadrant]\\
+[Fonction]
+\end{minipage}\\[1.3cm]
+{\large Stage effectué à la \textbf{Royal Air Maroc}}\\[0.4cm]
+{\large Digital Factory}\\[1.2cm]
+{\large Période : du 1\textsuperscript{er} juillet au 15 septembre [année]}\\[1cm]
+{\large Année universitaire [20XX--20XX]}
+\vfill
+\end{titlepage}
+
+\pagenumbering{roman}
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+Je tiens à remercier la Royal Air Maroc, et plus particulièrement l'équipe de la Digital Factory, pour l'accueil et l'encadrement accordés durant ce stage. Mes remerciements s'adressent également à mon encadrant professionnel et à mon établissement pour leur accompagnement.
+
+\chapter*{Dédicace}
+\addcontentsline{toc}{chapter}{Dédicace}
+Je dédie ce travail à ma famille, pour son soutien et ses encouragements, ainsi qu'à toutes les personnes qui ont contribué à mon parcours académique et professionnel.
+
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+Ce rapport présente la conception et le développement de \textbf{Digital Factory}, une plateforme web destinée à structurer le suivi des projets de stage au sein de la Royal Air Maroc. La solution centralise la création des projets, l'affectation des stagiaires et des encadrants, la gestion des tâches, les livrables et les échanges liés aux soumissions. Elle intègre également une assistance par intelligence artificielle permettant au SuperAdmin de générer une proposition de projet et de tâches à partir d'une consigne, avant validation humaine. L'application repose sur une architecture moderne associant Spring Boot, React avec TypeScript et PostgreSQL, avec une chaîne CI/CD Jenkins enrichie de contrôles DevSecOps.
+
+\noindent\textbf{Mots-clés :} gestion de stage, Spring Boot, React, TypeScript, PostgreSQL, Jenkins, DevSecOps, intelligence artificielle.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+This report presents the design and development of \textbf{Digital Factory}, a web platform dedicated to managing internship projects within Royal Air Maroc. The solution centralizes project creation, supervisor and intern assignment, task management, deliverable submission and communication. It also provides a controlled AI assistant that generates a project draft and its tasks from a prompt, subject to SuperAdmin review and approval. The application combines Spring Boot, React with TypeScript and PostgreSQL, while Jenkins automates CI/CD and integrates DevSecOps checks for code quality, secrets, dependencies and container vulnerabilities.
+
+\noindent\textbf{Keywords:} internship management, Spring Boot, React, TypeScript, PostgreSQL, Jenkins, DevSecOps, artificial intelligence.
+
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage
+\pagenumbering{arabic}
+
+\input{chapters/01-introduction}
+\input{chapters/02-organisme}
+\input{chapters/03-analyse}
+\input{chapters/04-realisation}
+\input{chapters/conclusion}
+
+\chapter*{Bibliographie et webographie}
+\addcontentsline{toc}{chapter}{Bibliographie et webographie}
+\begin{enumerate}[label={[\arabic*]}]
+  \item Spring Boot Documentation, \url{https://spring.io/projects/spring-boot}.
+  \item React Documentation, \url{https://react.dev/}.
+  \item TypeScript Documentation, \url{https://www.typescriptlang.org/docs/}.
+  \item PostgreSQL Documentation, \url{https://www.postgresql.org/docs/}.
+  \item Jenkins User Documentation, \url{https://www.jenkins.io/doc/}.
+  \item SonarQube Documentation, \url{https://docs.sonarsource.com/sonarqube/}.
+  \item OWASP Dependency-Check, \url{https://owasp.org/www-project-dependency-check/}.
+  \item Trivy Documentation, \url{https://aquasecurity.github.io/trivy/}.
+\end{enumerate}
+
+\appendix
+\chapter{Éléments à compléter avant la soutenance}
+\begin{itemize}
+  \item Ajouter les logos de l'établissement et de la Royal Air Maroc sur la page de garde, si autorisés.
+  \item Remplacer tous les champs entre crochets par les informations définitives.
+  \item Insérer des captures d'écran réelles dans le chapitre \ref{chap:realisation}.
+  \item Mettre à jour le planning si les dates effectives diffèrent du prévisionnel.
+  \item Vérifier avec l'encadrant les règles de confidentialité avant toute insertion de données internes.
+\end{itemize}
+
+\end{document}

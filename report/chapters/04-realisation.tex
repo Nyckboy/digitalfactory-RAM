@@ -1,0 +1,208 @@
+\chapter{Realisation}
+\label{chap:realisation}
+
+\section{Choix technologiques}
+\begin{table}[h]
+\centering
+\caption{Technologies principales}
+\begin{tabularx}{\textwidth}{p{3.2cm}Y}
+\toprule
+\textbf{Technologie} & \textbf{Utilisation dans le projet} \\
+\midrule
+Spring Boot & Exposition de l'API REST, logique metier, securite et acces aux donnees. \\
+React + TypeScript & Interface web par role, tableaux de bord, gestion des projets et des taches. \\
+PostgreSQL & Persistance des utilisateurs, projets, taches, soumissions, pieces jointes et commentaires. \\
+Jenkins & Automatisation de la construction, des tests, des analyses et du deploiement. \\
+Docker & Construction et execution isolee des services frontend et backend. \\
+SonarQube & Analyse de la qualite et de la maintenabilite du code, avec Quality Gate. \\
+GitLeaks / OWASP / Trivy & Detection de secrets, analyse des dependances et scan des images de conteneurs. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Architecture applicative}
+L'application est structuree en deux parties. Le frontend React fournit des espaces adaptes au SuperAdmin, au Supervisor et a l'Intern. Le backend Spring Boot applique les regles de gestion, assure l'authentification et expose les ressources via une API REST. PostgreSQL garantit la persistance des donnees metier.
+
+Les echanges sont securises grace a une authentification par jeton JWT et a une autorisation fondee sur les roles. La separation des responsabilites facilite l'evolution independante des interfaces et des services metier.
+
+\section{Fonctionnalites realisees}
+\subsection{Espace SuperAdmin}
+Le SuperAdmin gere les comptes des encadrants et des stagiaires, cree et affecte les projets, et consulte une vue globale des statuts. Il peut egalement soumettre une instruction au service IA afin d'obtenir un brouillon de projet et de taches. Ce contenu n'est enregistre qu'apres relecture, modification eventuelle et confirmation explicite.
+
+\subsection{Espace Supervisor}
+Le Supervisor accede aux projets et stagiaires qui lui sont affectes. Il cree les taches, precise leur priorite et leur echeance, suit leur etat, consulte les soumissions et formule des commentaires.
+
+\subsection{Espace Intern}
+L'Intern consulte son projet et ses taches, soumet ses reponses et associe des fichiers ou des liens externes. Il peut ensuite consulter les commentaires recus et suivre l'avancement de son travail.
+
+\section{Chaine DevSecOps}
+La chaine Jenkins automatise les etapes suivantes :
+\begin{enumerate}
+  \item recuperation du code source ;
+  \item recherche de secrets avec GitLeaks ;
+  \item construction et tests du backend Maven et du frontend React ;
+  \item analyse des dependances Java avec OWASP Dependency-Check et des dependances frontend avec \texttt{pnpm audit} ;
+  \item analyse SonarQube suivie du controle du Quality Gate ;
+  \item construction des images Docker ;
+  \item analyse de securite des images avec Trivy ;
+  \item deploiement et verification de l'etat des conteneurs.
+\end{enumerate}
+Cette approche deplace les verifications de qualite et de securite au plus pres du cycle de developpement, afin de detecter les problemes avant la mise a disposition de l'application.
+
+\section{Interfaces realisees}
+Les interfaces suivantes illustrent les principales fonctionnalites livrees. Elles sont organisees par parcours utilisateur afin de distinguer la page d'authentification, l'espace SuperAdmin, l'espace Supervisor et l'espace Intern.
+
+\subsection{Authentification}
+La page de connexion constitue le point d'entree de la plateforme. Elle permet a l'utilisateur de s'authentifier avec son adresse e-mail et son mot de passe. L'interface met aussi en evidence des fonctionnalites prevues en evolution, notamment la memorisation de session, l'authentification SSO et l'identification par badge.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{login-page.png}
+\caption{Page de connexion de la plateforme}
+\label{fig:login-page}
+\end{figure}
+
+\subsection{Tableau de bord SuperAdmin}
+Apres authentification, le SuperAdmin accede a un tableau de bord de synthese. Cette vue presente les indicateurs principaux de la plateforme, tels que le nombre de projets actifs, le nombre de membres et le volume de taches terminees. Une zone d'activite recente facilite le suivi des dernieres actions realisees par les utilisateurs.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{superadmin-dashboard.png}
+\caption{Tableau de bord de l'espace SuperAdmin}
+\label{fig:superadmin-dashboard}
+\end{figure}
+
+\subsection{Gestion des projets}
+La page de gestion des projets permet au SuperAdmin de consulter l'ensemble des projets, leur statut et l'encadrant affecte. Depuis cette interface, il peut creer un nouveau projet, modifier les informations d'un projet existant ou supprimer une entree si necessaire.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{superadmin-projects.png}
+\caption{Liste des projets dans l'espace SuperAdmin}
+\label{fig:superadmin-projects}
+\end{figure}
+
+\subsection{Gestion des utilisateurs}
+L'interface de gestion d'equipe centralise les comptes de la plateforme. Elle affiche le nom, l'adresse e-mail, le role et le statut de chaque utilisateur. Le SuperAdmin peut ainsi administrer les comptes SuperAdmin, Supervisor et Intern depuis une vue unique.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{superadmin-team.png}
+\caption{Gestion des comptes utilisateurs}
+\label{fig:superadmin-team}
+\end{figure}
+
+L'ajout d'un utilisateur se fait a travers une fenetre modale. Le formulaire demande les informations d'identite, l'adresse e-mail, un mot de passe temporaire ainsi que le role du nouvel utilisateur. Ce choix garantit une creation controlee des acces et facilite l'affectation des responsabilites.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.82\textwidth]{superadmin-register-user.png}
+\caption{Formulaire d'enregistrement d'un nouvel utilisateur}
+\label{fig:superadmin-register-user}
+\end{figure}
+
+\subsection{Creation de projet}
+La creation manuelle d'un projet permet au SuperAdmin de renseigner le titre, la description, l'encadrant et les stagiaires affectes. Ce mode repond aux cas ou le besoin est deja formalise et peut etre saisi directement dans la plateforme.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.82\textwidth]{superadmin-new-project-manual.png}
+\caption{Creation manuelle d'un projet}
+\label{fig:superadmin-new-project-manual}
+\end{figure}
+
+La plateforme propose egalement un mode de generation assistee par intelligence artificielle. Le SuperAdmin decrit le besoin sous forme de prompt, selectionne l'encadrant et les stagiaires concernes, puis demande la generation d'un brouillon. Le contenu produit par l'IA reste soumis a une validation humaine avant son enregistrement definitif.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.82\textwidth]{superadmin-new-project-ai.png}
+\caption{Generation assistee d'un projet par IA}
+\label{fig:superadmin-new-project-ai}
+\end{figure}
+
+\subsection{Interfaces de l'espace Supervisor}
+L'espace Supervisor est centre sur le suivi operationnel des projets affectes. Il permet a l'encadrant de consulter les projets sous sa responsabilite, de visualiser les taches, d'affecter le travail aux stagiaires et de suivre les livrables en attente de revue.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{supervisor-dashboard.png}
+\caption{Tableau de bord de l'espace Supervisor}
+\label{fig:supervisor-dashboard}
+\end{figure}
+
+Le tableau de bord Supervisor presente une vue synthetique du projet assigne, du taux d'avancement et des taches en cours. Il met aussi en avant les taches en attente de revue afin d'aider l'encadrant a prioriser son intervention.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{supervisor-project-view.png}
+\caption{Liste des projets affectes au Supervisor}
+\label{fig:supervisor-project-view}
+\end{figure}
+
+La vue des projets regroupe les projets auxquels le Supervisor est affecte. Chaque carte affiche l'etat du projet, une description courte et l'equipe assignee. L'encadrant peut ensuite ouvrir le tableau de suivi ou ajouter une nouvelle tache.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{supervisor-project-kanban.png}
+\caption{Tableau Kanban de suivi des taches}
+\label{fig:supervisor-project-kanban}
+\end{figure}
+
+Le tableau Kanban structure les taches par statut : a faire, en cours, en revue et terminees. Cette organisation donne une vision rapide de l'avancement du projet et facilite le passage d'une tache d'un etat a un autre.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.82\textwidth]{supervisor-create-task.png}
+\caption{Creation et affectation d'une tache}
+\label{fig:supervisor-create-task}
+\end{figure}
+
+La creation d'une tache permet au Supervisor de definir le titre, la description, le stagiaire assigne et l'echeance. Cette fonctionnalite transforme les objectifs du projet en actions concretes et suivables par l'equipe.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.82\textwidth]{supervisor-edit-task.png}
+\caption{Modification d'une tache existante}
+\label{fig:supervisor-edit-task}
+\end{figure}
+
+Le formulaire de modification offre au Supervisor la possibilite de corriger les informations d'une tache, de changer son statut, d'ajuster la date limite ou de reaffecter le travail a un autre stagiaire.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{supervisor-team-directory.png}
+\caption{Annuaire des stagiaires affectes au Supervisor}
+\label{fig:supervisor-team-directory}
+\end{figure}
+
+L'annuaire de l'equipe donne au Supervisor une vue directe sur les stagiaires associes a ses projets. Il complete le suivi des taches par une vision humaine de l'equipe encadree.
+
+\subsection{Interfaces de l'espace Intern}
+L'espace Intern est concu pour donner au stagiaire une vision claire de son travail quotidien. Il regroupe les taches affectees, les echeances proches, l'etat des livrables et les echanges avec l'encadrant.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{intern-dashboard.png}
+\caption{Tableau de bord de l'espace Intern}
+\label{fig:intern-dashboard}
+\end{figure}
+
+Le tableau de bord Intern presente les indicateurs essentiels : nombre de taches assignees, livrables termines et echeances a venir. La section des taches urgentes aide le stagiaire a identifier rapidement les actions prioritaires.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{intern-kanban.png}
+\caption{Sprint Board de l'Intern}
+\label{fig:intern-kanban}
+\end{figure}
+
+Le Sprint Board organise les taches de l'Intern selon leur statut. Le stagiaire peut suivre l'avancement de ses livrables, joindre un lien externe lorsque son travail est disponible et consulter les commentaires lies a chaque tache.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=0.78\textwidth]{intern-task-discussion.png}
+\caption{Discussion autour d'une tache}
+\label{fig:intern-task-discussion}
+\end{figure}
+
+La discussion d'une tache centralise les commentaires entre l'Intern et le Supervisor. Elle evite la dispersion des echanges et permet de conserver l'historique des remarques directement associe au livrable concerne.
