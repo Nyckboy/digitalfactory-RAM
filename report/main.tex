@@ -1,4 +1,4 @@
-% Rapport Digital Factory - Compiler avec: pdflatex main.tex (deux fois)
+% Rapport Royal Air Maroc - Compiler avec: pdflatex main.tex (deux fois)
 \documentclass[11pt,a4paper,oneside]{report}
 
 \usepackage[T1]{fontenc}
@@ -6,11 +6,13 @@
 \usepackage[french]{babel}
 \usepackage{lmodern}
 \usepackage{microtype}
+\usepackage{setspace}
 \usepackage[a4paper,margin=2.5cm]{geometry}
 \usepackage{xcolor}
 \usepackage{colortbl}
 \usepackage{graphicx}
 \graphicspath{{figures/}}
+\usepackage{caption}
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{array}
@@ -26,23 +28,33 @@
 \definecolor{ramblue}{HTML}{003B71}
 \definecolor{ramred}{HTML}{C8102E}
 \definecolor{lightblue}{HTML}{EAF2F8}
-\hypersetup{colorlinks=true,linkcolor=ramblue,urlcolor=ramblue,citecolor=ramblue,pdftitle={Digital Factory}}
+\hypersetup{colorlinks=true,linkcolor=ramblue,urlcolor=ramblue,citecolor=ramblue,pdftitle={Plateforme de gestion des projets de stage}}
 \setlist[itemize]{noitemsep,topsep=4pt}
-\setlength{\parskip}{5pt}
+\setstretch{1.15}
+\setlength{\parskip}{7pt}
 \setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{1.15}
 \titleformat{\chapter}[display]{\bfseries\color{ramblue}\Huge}{\chaptername\ \thechapter}{10pt}{\Huge}
 \titleformat{\section}{\Large\bfseries\color{ramblue}}{\thesection}{0.7em}{}
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\small Digital Factory}
-\rhead{\small Royal Air Maroc}
+\renewcommand{\chaptermark}[1]{\markboth{Chapitre \thechapter\ -- #1}{}}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\textbf{Royal Air Maroc (RAM)}}
 \cfoot{\small \thepage~/~\pageref{LastPage}}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\headrule}{\hbox to\headwidth{\color{ramblue}\leaders\hrule height \headrulewidth\hfill}}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[L]{\small\nouppercase{\leftmark}}%
+  \fancyhead[R]{\small\textbf{Royal Air Maroc (RAM)}}%
+  \cfoot{\small \thepage~/~\pageref{LastPage}}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+}
 
 \newcommand{\placeholder}[1]{\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering\textit{#1}}}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
-
+\setlength{\headheight}{22pt}
 \begin{document}
 \begin{titlepage}
 \centering
@@ -55,18 +67,19 @@
 {\color{ramred}\rule{\textwidth}{1.2pt}}\\[1.4cm]
 \begin{minipage}{0.44\textwidth}
 \raggedright\textbf{Réalisé par :}\\
-[Nom et prénom]\\
-[CIN / code étudiant, si nécessaire]
+[Abbassid Mouad]\\
 \end{minipage}\hfill
 \begin{minipage}{0.44\textwidth}
-\raggedleft\textbf{Encadré par :}\\
-[Nom de l'encadrant]\\
-[Fonction]
+\raggedleft\textbf{Encadrant académique :}\\
+[Melaouene Noussaiba]\\
+\raggedleft\textbf{Encadrant professionnel :}\\
+[XXXX Nabile]\\
+
 \end{minipage}\\[1.3cm]
-{\large Stage effectué à la \textbf{Royal Air Maroc}}\\[0.4cm]
-{\large Digital Factory}\\[1.2cm]
-{\large Période : du 1\textsuperscript{er} juillet au 15 septembre [année]}\\[1cm]
-{\large Année universitaire [20XX--20XX]}
+{\large Stage effectué à la \textbf{Royal Air Maroc (RAM)}}\\[0.25cm]
+{\large Département d'accueil : Digital Factory}\\[0.4cm]
+{\large Période : du 1\textsuperscript{er} juillet au 15 septembre 2026}\\[1cm]
+{\large Année universitaire [2025--2026]}
 \vfill
 \end{titlepage}
 
@@ -81,13 +94,13 @@ Je dédie ce travail à ma famille, pour son soutien et ses encouragements, ains
 
 \chapter*{Résumé}
 \addcontentsline{toc}{chapter}{Résumé}
-Ce rapport présente la conception et le développement de \textbf{Digital Factory}, une plateforme web destinée à structurer le suivi des projets de stage au sein de la Royal Air Maroc. La solution centralise la création des projets, l'affectation des stagiaires et des encadrants, la gestion des tâches, les livrables et les échanges liés aux soumissions. Elle intègre également une assistance par intelligence artificielle permettant au SuperAdmin de générer une proposition de projet et de tâches à partir d'une consigne, avant validation humaine. L'application repose sur une architecture moderne associant Spring Boot, React avec TypeScript et PostgreSQL, avec une chaîne CI/CD Jenkins enrichie de contrôles DevSecOps.
+Ce rapport présente la conception et le développement d'une \textbf{plateforme de gestion des projets de stage} destinée à structurer le suivi des stages au sein de la Digital Factory de Royal Air Maroc. La Digital Factory désigne ici le département d'accueil et de développement, tandis que la plateforme correspond à la solution réalisée durant le stage. La solution centralise la création des projets, l'affectation des stagiaires et des encadrants, la gestion des tâches, les livrables et les échanges liés aux soumissions. Elle intègre également une assistance par intelligence artificielle permettant au SuperAdmin de générer une proposition de projet et de tâches à partir d'une consigne, avant validation humaine. L'application repose sur une architecture moderne associant Spring Boot, React avec TypeScript et PostgreSQL, avec une chaîne CI/CD Jenkins enrichie de contrôles DevSecOps.
 
 \noindent\textbf{Mots-clés :} gestion de stage, Spring Boot, React, TypeScript, PostgreSQL, Jenkins, DevSecOps, intelligence artificielle.
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
-This report presents the design and development of \textbf{Digital Factory}, a web platform dedicated to managing internship projects within Royal Air Maroc. The solution centralizes project creation, supervisor and intern assignment, task management, deliverable submission and communication. It also provides a controlled AI assistant that generates a project draft and its tasks from a prompt, subject to SuperAdmin review and approval. The application combines Spring Boot, React with TypeScript and PostgreSQL, while Jenkins automates CI/CD and integrates DevSecOps checks for code quality, secrets, dependencies and container vulnerabilities.
+This report presents the design and development of an \textbf{internship project management platform} for the Digital Factory of Royal Air Maroc. In this report, Digital Factory refers to the host development department, while the platform refers to the solution developed during the internship. The solution centralizes project creation, supervisor and intern assignment, task management, deliverable submission and communication. It also provides a controlled AI assistant that generates a project draft and its tasks from a prompt, subject to SuperAdmin review and approval. The application combines Spring Boot, React with TypeScript and PostgreSQL, while Jenkins automates CI/CD and integrates DevSecOps checks for code quality, secrets, dependencies and container vulnerabilities.
 
 \noindent\textbf{Keywords:} internship management, Spring Boot, React, TypeScript, PostgreSQL, Jenkins, DevSecOps, artificial intelligence.
 
@@ -98,7 +111,6 @@ This report presents the design and development of \textbf{Digital Factory}, a w
 \pagenumbering{arabic}
 
 \input{chapters/01-introduction}
-\input{chapters/02-organisme}
 \input{chapters/03-analyse}
 \input{chapters/04-realisation}
 \input{chapters/conclusion}
