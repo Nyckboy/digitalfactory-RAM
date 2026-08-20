@@ -5,12 +5,12 @@
 Ce chapitre presente l'analyse des besoins et les principaux choix de conception de la plateforme de gestion des projets de stage. Il identifie les acteurs, formalise les exigences fonctionnelles et non fonctionnelles, puis propose une representation des interactions, des donnees et du deroulement general du projet. Ces elements constituent la base de la realisation technique presentee dans le chapitre suivant.
 
 \section{Identification des acteurs}
-La plateforme met en relation quatre acteurs principaux, resumes dans le Tableau~\ref{tab:acteurs}, intitule \textit{Acteurs de la plateforme}. Le SuperAdmin administre les comptes et les projets, le Supervisor organise et valide le travail, l'Intern realise les taches qui lui sont affectees, et le service IA assiste le SuperAdmin dans la preparation des projets.
+La plateforme met en relation quatre acteurs principaux, resumes dans le Tableau~\ref{tab-acteurs}, intitule \textit{Acteurs de la plateforme}. Le SuperAdmin administre les comptes et les projets, le Supervisor organise et valide le travail, l'Intern realise les taches qui lui sont affectees, et le service IA assiste le SuperAdmin dans la preparation des projets.
 
 \begin{table}[h]
 \centering
 \caption{Acteurs de la plateforme}
-\label{tab:acteurs}
+\label{tab-acteurs}
 \begin{tabularx}{\textwidth}{p{3cm}Y}
 \toprule
 \textbf{Acteur} & \textbf{Rôle principal} \\
@@ -63,10 +63,10 @@ Service IA & Génère une proposition de projet et une liste de tâches à parti
 \draw (intern)--(tasks) (intern)--(submit) (intern)--(comment);
 \end{tikzpicture}
 \caption{Vue synthétique des cas d'utilisation}
-\label{fig:cas-utilisation}
+\label{fig-cas-utilisation}
 \end{figure}
 
-La Figure~\ref{fig:cas-utilisation}, intitulee \textit{Vue synthetique des cas d'utilisation}, met en evidence la repartition des responsabilites entre les acteurs. Le SuperAdmin intervient sur les utilisateurs, les projets et la generation assistee ; le Supervisor assure l'organisation et le suivi du travail ; l'Intern realise les taches, depose les livrables et participe aux echanges. Le service IA n'agit pas de maniere autonome : il fournit une proposition qui reste validee par le SuperAdmin.
+La Figure~\ref{fig-cas-utilisation}, intitulee \textit{Vue synthetique des cas d'utilisation}, met en evidence la repartition des responsabilites entre les acteurs. Le SuperAdmin intervient sur les utilisateurs, les projets et la generation assistee ; le Supervisor assure l'organisation et le suivi du travail ; l'Intern realise les taches, depose les livrables et participe aux echanges. Le service IA n'agit pas de maniere autonome : il fournit une proposition qui reste validee par le SuperAdmin.
 
 % \clearpage
 
@@ -89,24 +89,24 @@ La plateforme s'appuie sur les entités principales \textit{User}, \textit{Proje
 \draw[rel] (submission)--node[below]{reçoit}(comment);
 \end{tikzpicture}
 \caption{Modèle conceptuel simplifié}
-\label{fig:modele-conceptuel}
+\label{fig-modele-conceptuel}
 \end{figure}
 
-La Figure~\ref{fig:modele-conceptuel}, intitulee \textit{Modele conceptuel simplifie}, montre que \textit{Project} constitue l'element central de la gestion. Il relie l'encadrant et les stagiaires aux taches, tandis que chaque tache peut recevoir une soumission, des pieces jointes et des commentaires. Cette structure permet de conserver la tracabilite des livrables et des echanges associes.
+La Figure~\ref{fig-modele-conceptuel}, intitulee \textit{Modele conceptuel simplifie}, montre que \textit{Project} constitue l'element central de la gestion. Il relie l'encadrant et les stagiaires aux taches, tandis que chaque tache peut recevoir une soumission, des pieces jointes et des commentaires. Cette structure permet de conserver la tracabilite des livrables et des echanges associes.
 
 \clearpage
 \section{Diagramme de sequence : cycle projet et notifications}
 \begin{center}
 \includegraphics[width=0.61\textwidth]{figures/diagram-sequence.png}
 \captionof{figure}{Diagramme de sequence du cycle projet, des taches et des notifications}
-\label{fig:sequence-cycle-projet}
+\label{fig-sequence-cycle-projet}
 \end{center}
 
-La Figure~\ref{fig:sequence-cycle-projet}, intitulee \textit{Diagramme de sequence du cycle projet, des taches et des notifications}, presente le parcours principal de la plateforme. Le SuperAdmin peut demander une proposition de projet a l'IA, la corriger puis la confirmer avec l'encadrant et les stagiaires concernes. Le Supervisor affecte ensuite les taches ; l'Intern les realise et les transmet en revue ; enfin, le Supervisor les valide. A chaque etape importante, le backend Spring Boot enregistre les donnees dans PostgreSQL et transmet, lorsque cela est necessaire, une notification en temps reel par WebSocket. Cette organisation associe les appels REST au suivi immediat des utilisateurs.
+La Figure~\ref{fig-sequence-cycle-projet}, intitulee \textit{Diagramme de sequence du cycle projet, des taches et des notifications}, presente le parcours principal de la plateforme. Le SuperAdmin peut demander une proposition de projet a l'IA, la corriger puis la confirmer avec l'encadrant et les stagiaires concernes. Le Supervisor affecte ensuite les taches ; l'Intern les realise et les transmet en revue ; enfin, le Supervisor les valide. A chaque etape importante, le backend Spring Boot enregistre les donnees dans PostgreSQL et transmet, lorsque cela est necessaire, une notification en temps reel par WebSocket. Cette organisation associe les appels REST au suivi immediat des utilisateurs.
 
 \section{Planification prévisionnelle}
 \begin{longtable}{p{5.2cm}ccccccccccc}
-\caption{Planning prévisionnel du 1\textsuperscript{er} juillet au 15 septembre}\label{tab:planning}\\
+\caption{Planning prévisionnel du 1\textsuperscript{er} juillet au 15 septembre}\label{tab-planning}\\
 \toprule
 \textbf{Activité} & \textbf{J1} & \textbf{J2} & \textbf{J3} & \textbf{J4} & \textbf{A1} & \textbf{A2} & \textbf{A3} & \textbf{A4} & \textbf{S1} & \textbf{S2} \\
 \midrule
@@ -126,7 +126,7 @@ Rédaction du rapport & & & & & & & & \cellcolor{ramblue} & \cellcolor{ramblue} 
 \end{longtable}
 \textit{Légende : J = juillet, A = août, S = septembre ; une cellule bleue indique une période prévue de réalisation.}
 
-Le Tableau~\ref{tab:planning}, intitule \textit{Planning previsionnel du 1er juillet au 15 septembre}, presente l'enchainement des travaux sur toute la periode de stage. L'analyse et l'initialisation ouvrent le projet ; le developpement backend commence ensuite, puis se poursuit en parallele avec le frontend et l'integration. La phase DevSecOps, les tests de securite et la redaction du rapport interviennent progressivement afin de verifier la solution et de documenter les resultats avant la soutenance.
+Le Tableau~\ref{tab-planning}, intitule \textit{Planning previsionnel du 1er juillet au 15 septembre}, presente l'enchainement des travaux sur toute la periode de stage. L'analyse et l'initialisation ouvrent le projet ; le developpement backend commence ensuite, puis se poursuit en parallele avec le frontend et l'integration. La phase DevSecOps, les tests de securite et la redaction du rapport interviennent progressivement afin de verifier la solution et de documenter les resultats avant la soutenance.
 
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
