@@ -2,10 +2,10 @@
 
 \section*{Introduction}
 \addcontentsline{toc}{section}{Introduction}
-Ce chapitre presente l'analyse des besoins et les principaux choix de conception de la plateforme de gestion des projets de stage. Il identifie les acteurs, formalise les exigences fonctionnelles et non fonctionnelles, puis propose une representation des interactions, des donnees et du deroulement general du projet. Ces elements constituent la base de la realisation technique presentee dans le chapitre suivant.
+Ce chapitre présente l'analyse des besoins et les principaux choix de conception de la plateforme de gestion des projets de stage. Il identifie les acteurs, formalise les exigences fonctionnelles et non fonctionnelles, puis propose une représentation des interactions, des données et du déroulement général du projet. Ces éléments constituent la base de la réalisation technique présentée dans le chapitre suivant.
 
 \section{Identification des acteurs}
-La plateforme met en relation quatre acteurs principaux, resumes dans le Tableau~\ref{tab-acteurs}, intitule \textit{Acteurs de la plateforme}. Le SuperAdmin administre les comptes et les projets, le Supervisor organise et valide le travail, l'Intern realise les taches qui lui sont affectees, et le service IA assiste le SuperAdmin dans la preparation des projets.
+La plateforme met en relation quatre acteurs principaux, résumés dans le Tableau~\ref{tab-acteurs}, intitulé \textit{Acteurs de la plateforme}. Le SuperAdmin administre les comptes et les projets, le Supervisor organise et valide le travail, l'Intern réalise les tâches qui lui sont affectées, et le service IA assiste le SuperAdmin dans la préparation des projets.
 
 \begin{table}[h]
 \centering
@@ -47,12 +47,12 @@ Service IA & Génère une proposition de projet et une liste de tâches à parti
 \section{Diagramme de cas d'utilisation}
 \clearpage
 \begin{center}
-\includegraphics[width=0.9\textwidth,height=0.68\textheight,keepaspectratio]{use-case-diagram.png}
+\includegraphics[width=0.98\textwidth,height=0.77\textheight,keepaspectratio]{use-case-diagram.png}
 \captionof{figure}{Diagramme de cas d'utilisation de la plateforme}
 \label{fig-use-case-diagram}
 \end{center}
 
-La Figure~\ref{fig-use-case-diagram}, intitulee \textit{Diagramme de cas d'utilisation de la plateforme}, met en evidence la repartition des responsabilites entre les acteurs. Le SuperAdmin intervient sur les utilisateurs, les projets et la generation assistee ; le Supervisor assure l'organisation et le suivi du travail ; l'Intern realise les taches, depose les livrables et participe aux echanges. Le service IA n'agit pas de maniere autonome : il fournit une proposition qui reste validee par le SuperAdmin.
+La Figure~\ref{fig-use-case-diagram}, intitulée \textit{Diagramme de cas d'utilisation de la plateforme}, met en évidence la répartition des responsabilités entre les acteurs. Le SuperAdmin intervient sur les utilisateurs, les projets et la génération assistée ; le Supervisor assure l'organisation et le suivi du travail ; l'Intern réalise les tâches, dépose les livrables et participe aux échanges. Le service IA n'agit pas de manière autonome : il fournit une proposition qui reste validée par le SuperAdmin.
 
 % \clearpage
 
@@ -66,17 +66,26 @@ La plateforme s'appuie sur les entités principales \textit{User}, \textit{Proje
 \label{fig-class-diagram}
 \end{center}
 
-La Figure~\ref{fig-class-diagram}, intitulee \textit{Diagramme de classes de la plateforme}, montre que \textit{Project} constitue l'element central de la gestion. Il relie l'encadrant et les stagiaires aux taches, tandis que les statuts et les roles structurent les droits et le suivi de l'avancement. Les notifications sont rattachees aux utilisateurs afin de conserver la tracabilite des actions importantes.
+La Figure~\ref{fig-class-diagram}, intitulée \textit{Diagramme de classes de la plateforme}, montre que \textit{Project} constitue l'élément central de la gestion. Il relie l'encadrant et les stagiaires aux tâches, tandis que les statuts et les rôles structurent les droits et le suivi de l'avancement. Les notifications sont rattachées aux utilisateurs afin de conserver la traçabilité des actions importantes.
 
 \clearpage
-\section{Diagramme de sequence : cycle projet et notifications}
+\section{Diagramme de séquence : cycle projet et notifications}
 \begin{center}
-\includegraphics[width=0.61\textwidth]{figures/diagram-sequence.png}
-\captionof{figure}{Diagramme de sequence du cycle projet, des taches et des notifications}
-\label{fig-sequence-cycle-projet}
+\includegraphics[width=0.88\textwidth,trim=0 650bp 0 0,clip]{figures/diagram-sequence.png}
+\captionof{figure}{Diagramme de séquence : génération de projet et délégation des tâches}
+\label{fig-sequence-generation-delegation}
 \end{center}
 
-La Figure~\ref{fig-sequence-cycle-projet}, intitulee \textit{Diagramme de sequence du cycle projet, des taches et des notifications}, presente le parcours principal de la plateforme. Le SuperAdmin peut demander une proposition de projet a l'IA, la corriger puis la confirmer avec l'encadrant et les stagiaires concernes. Le Supervisor affecte ensuite les taches ; l'Intern les realise et les transmet en revue ; enfin, le Supervisor les valide. A chaque etape importante, le backend Spring Boot enregistre les donnees dans PostgreSQL et transmet, lorsque cela est necessaire, une notification en temps reel par WebSocket. Cette organisation associe les appels REST au suivi immediat des utilisateurs.
+La Figure~\ref{fig-sequence-generation-delegation} présente le début du parcours principal de la plateforme. Le SuperAdmin peut demander une proposition de projet à l'IA, la corriger puis la confirmer avec l'encadrant et les stagiaires concernés. Le Supervisor affecte ensuite les tâches. À chaque étape importante, le backend Spring Boot enregistre les données dans PostgreSQL et transmet, lorsque cela est nécessaire, une notification en temps réel par WebSocket.
+
+\clearpage
+\begin{center}
+\includegraphics[width=0.88\textwidth,trim=0 0 0 1050bp,clip]{figures/diagram-sequence.png}
+\captionof{figure}{Diagramme de séquence : exécution des tâches et validation finale}
+\label{fig-sequence-execution-validation}
+\end{center}
+
+La Figure~\ref{fig-sequence-execution-validation} présente la suite du cycle. L'Intern réalise les tâches et les transmet en revue ; enfin, le Supervisor les valide. Cette organisation associe les appels REST au suivi immédiat des utilisateurs et conserve la traçabilité des actions réalisées sur la plateforme.
 
 \section{Planification prévisionnelle}
 \begin{longtable}{p{5.2cm}ccccccccccc}
@@ -100,8 +109,8 @@ Rédaction du rapport & & & & & & & & \cellcolor{ramblue} & \cellcolor{ramblue} 
 \end{longtable}
 \textit{Légende : J = juillet, A = août, S = septembre ; une cellule bleue indique une période prévue de réalisation.}
 
-Le Tableau~\ref{tab-planning}, intitule \textit{Planning previsionnel du 1er juillet au 15 septembre}, presente l'enchainement des travaux sur toute la periode de stage. L'analyse et l'initialisation ouvrent le projet ; le developpement backend commence ensuite, puis se poursuit en parallele avec le frontend et l'integration. La phase DevSecOps, les tests de securite et la redaction du rapport interviennent progressivement afin de verifier la solution et de documenter les resultats avant la soutenance.
+Le Tableau~\ref{tab-planning}, intitulé \textit{Planning prévisionnel du 1er juillet au 15 septembre}, présente l'enchaînement des travaux sur toute la période de stage. L'analyse et l'initialisation ouvrent le projet ; le développement backend commence ensuite, puis se poursuit en parallèle avec le frontend et l'intégration. La phase DevSecOps, les tests de sécurité et la rédaction du rapport interviennent progressivement afin de vérifier la solution et de documenter les résultats avant la soutenance.
 
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
-L'analyse a permis de definir clairement les responsabilites de chaque utilisateur, les fonctions attendues de la plateforme et les contraintes de qualite, de securite et de tracabilite. Les diagrammes de cas d'utilisation, de donnees et de sequence confirment la coherence de la solution retenue, tandis que le planning organise sa mise en oeuvre. Le chapitre suivant decrit la realisation de cette conception avec les technologies choisies, les interfaces developpees et la chaine DevSecOps.
+L'analyse a permis de définir clairement les responsabilités de chaque utilisateur, les fonctions attendues de la plateforme et les contraintes de qualité, de sécurité et de traçabilité. Les diagrammes de cas d'utilisation, de classes et de séquence confirment la cohérence de la solution retenue, tandis que le planning organise sa mise en œuvre. Le chapitre suivant décrit la réalisation de cette conception avec les technologies choisies, les interfaces développées et la chaîne DevSecOps.

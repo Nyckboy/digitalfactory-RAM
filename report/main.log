@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.8.19)  1 SEP 2026 15:49
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.8.19)  14 SEP 2026 12:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -831,14 +831,14 @@ Package: lastpagemodern 2025-08-14 v2.1h Refers to last page's name (HMM; JPG)
 \c@lastpagecount=\count347
 ) 
 ))
-Package hyperref Info: Option `colorlinks' set `true' on input line 31.
+Package hyperref Info: Option `colorlinks' set `true' on input line 38.
 Package french3.ldf Info: Setting StandardItemizeEnv=true for
 (french3.ldf)             compatibility with enumitem package,
-(french3.ldf)             reported on input line 58.
+(french3.ldf)             reported on input line 78.
 Package french3.ldf Info: Setting StandardEnumerateEnv=true for
 (french3.ldf)             compatibility with enumitem package,
-(french3.ldf)             reported on input line 58.
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 58
+(french3.ldf)             reported on input line 78.
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 78
 .
  (C:\Users\abass\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
@@ -853,32 +853,32 @@ Package babel Info: 'french' activates 'french' shorthands.
 )
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 58.
-LaTeX Font Info:    ... okay on input line 58.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 58.
-LaTeX Font Info:    ... okay on input line 58.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 58.
-LaTeX Font Info:    ... okay on input line 58.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 58.
-LaTeX Font Info:    ... okay on input line 58.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 58.
-LaTeX Font Info:    ... okay on input line 58.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 58.
-LaTeX Font Info:    ... okay on input line 58.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 58.
-LaTeX Font Info:    ... okay on input line 58.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 58.
-LaTeX Font Info:    ... okay on input line 58.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 58.
-LaTeX Font Info:    ... okay on input line 58.
-LaTeX Info: Redefining \degres on input line 58.
-LaTeX Info: Redefining \microtypecontext on input line 58.
-Package microtype Info: Applying patch `item' on input line 58.
-Package microtype Info: Applying patch `toc' on input line 58.
-Package microtype Info: Applying patch `eqnum' on input line 58.
-Package microtype Info: Applying patch `footnote' on input line 58.
-Package microtype Info: Applying patch `verbatim' on input line 58.
-LaTeX Info: Redefining \microtypesetup on input line 58.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 78.
+LaTeX Font Info:    ... okay on input line 78.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 78.
+LaTeX Font Info:    ... okay on input line 78.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 78.
+LaTeX Font Info:    ... okay on input line 78.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 78.
+LaTeX Font Info:    ... okay on input line 78.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 78.
+LaTeX Font Info:    ... okay on input line 78.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 78.
+LaTeX Font Info:    ... okay on input line 78.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 78.
+LaTeX Font Info:    ... okay on input line 78.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 78.
+LaTeX Font Info:    ... okay on input line 78.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 78.
+LaTeX Font Info:    ... okay on input line 78.
+LaTeX Info: Redefining \degres on input line 78.
+LaTeX Info: Redefining \microtypecontext on input line 78.
+Package microtype Info: Applying patch `item' on input line 78.
+Package microtype Info: Applying patch `toc' on input line 78.
+Package microtype Info: Applying patch `eqnum' on input line 78.
+Package microtype Info: Applying patch `footnote' on input line 78.
+Package microtype Info: Applying patch `verbatim' on input line 78.
+LaTeX Info: Redefining \microtypesetup on input line 78.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -911,7 +911,7 @@ File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman
 * \oddsidemargin=-1.1381pt
 * \evensidemargin=-1.1381pt
 * \topmargin=-38.1381pt
-* \headheight=22.0pt
+* \headheight=23.0pt
 * \headsep=25.0pt
 * \topskip=11.0pt
 * \footskip=30.0pt
@@ -962,64 +962,73 @@ Package caption Info: longtable package is loaded.
 Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
 )
 Package caption Info: End \AtBeginDocument code.
-Package hyperref Info: Link coloring ON on input line 58.
+Package hyperref Info: Link coloring ON on input line 78.
 
 (main.out) (main.out)
 \@outlinefile=\write4
 \openout4 = `main.out'.
 
 Package babel Info: Main language set to 'french'.
-<figures/logo-emsi-entry.png, id=166, 1628.0825pt x 403.5075pt>
+<figures/logo-emsi-entry.png, id=162, 1628.0825pt x 403.5075pt>
 File: figures/logo-emsi-entry.png Graphic file (type png)
 <use figures/logo-emsi-entry.png>
-Package pdftex.def Info: figures/logo-emsi-entry.png  used on input line 64.
+Package pdftex.def Info: figures/logo-emsi-entry.png  used on input line 84.
 (pdftex.def)             Requested size: 177.92203pt x 44.10185pt.
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 6
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 8
 5.
 
 (C:\Users\abass\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 6
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 8
 5.
 
 (C:\Users\abass\AppData\Local\Programs\MiKTeX\tex/latex/lm\omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-65.
+85.
 
 (C:\Users\abass\AppData\Local\Programs\MiKTeX\tex/latex/lm\omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-65.
+85.
 
 (C:\Users\abass\AppData\Local\Programs\MiKTeX\tex/latex/lm\omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 65.
+(Font)              <10.95> on input line 85.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 65.
+(Font)              <8> on input line 85.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 65.
-<figures/ram-logo.png, id=168, 963.6pt x 963.6pt>
+(Font)              <6> on input line 85.
+<figures/ram-logo.png, id=164, 963.6pt x 963.6pt>
 File: figures/ram-logo.png Graphic file (type png)
 <use figures/ram-logo.png>
-Package pdftex.def Info: figures/ram-logo.png  used on input line 68.
+Package pdftex.def Info: figures/ram-logo.png  used on input line 88.
 (pdftex.def)             Requested size: 64.23366pt x 48.36958pt.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 87.
+Package microtype Info: Character `029' is missing
+(microtype)             in font `T1/lmr/m/sc/12'.
+(microtype)             Ignoring protrusion settings for this character.
  [1
 
 {C:/Users/abass/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/abas
 s/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc} <./figures/logo-e
-msi-entry.png> <./figures/ram-logo.png>] [1
+msi-entry.png> <./figures/ram-logo.png>]
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
+22.
 
-] [2
+(C:\Users\abass\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
+File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+) [1
 
-] [3
+{C:/Users/abass/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}] [
+2
+
+]
+[3
 
 ] [4
 
@@ -1044,19 +1053,19 @@ Package babel Info: 'french' activates 'french' shorthands.
 
  [8
 
-] (chapters/01-introduction.tex
+]
+(chapters/01-introduction.tex
 Chapitre 1.
 
 pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.19   \item g
-              erer les comptes des encadrants et des stagiaires ; [1
+l.18 \section{Objectifs}
+                         [1
 
 
-])
-(chapters/03-analyse.tex [2]
+]) (chapters/03-analyse.tex [2]
 Chapitre 2.
 
 Package hyperref Warning: The anchor of a bookmark and its parent's must not
@@ -1065,14 +1074,18 @@ Package hyperref Warning: The anchor of a bookmark and its parent's must not
 Package microtype Info: Character `029' is missing
 (microtype)             in font `T1/lmr/m/sc/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
+
+LaTeX Font Warning: Font shape `T1/lmr/bx/sc' undefined
+(Font)              using `T1/lmr/bx/n' instead on input line 12.
+
 [3
 
 ] [4]
-<figures/use-case-diagram.png, id=335, 1411.2725pt x 1213.53375pt>
+<figures/use-case-diagram.png, id=333, 1411.2725pt x 1213.53375pt>
 File: figures/use-case-diagram.png Graphic file (type png)
 <use figures/use-case-diagram.png>
 Package pdftex.def Info: figures/use-case-diagram.png  used on input line 50.
-(pdftex.def)             Requested size: 409.71077pt x 352.30464pt.
+(pdftex.def)             Requested size: 446.1252pt x 383.6169pt.
 
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
@@ -1082,7 +1095,7 @@ See the caption package documentation for explanation.
 [5
 
  <./figures/use-case-diagram.png (PNG copy)>]
-<figures/class-diagram.png, id=342, 792.9625pt x 805.0075pt>
+<figures/class-diagram.png, id=340, 792.9625pt x 805.0075pt>
 File: figures/class-diagram.png Graphic file (type png)
 <use figures/class-diagram.png>
 Package pdftex.def Info: figures/class-diagram.png  used on input line 64.
@@ -1096,11 +1109,11 @@ See the caption package documentation for explanation.
 [6
 
  <./figures/class-diagram.png>]
-<figures/diagram-sequence.png, id=350, 1006.76125pt x 1758.57pt>
+<figures/diagram-sequence.png, id=348, 1006.76125pt x 1758.57pt>
 File: figures/diagram-sequence.png Graphic file (type png)
 <use figures/diagram-sequence.png>
 Package pdftex.def Info: figures/diagram-sequence.png  used on input line 74.
-(pdftex.def)             Requested size: 277.69917pt x 485.07068pt.
+(pdftex.def)             Requested size: 400.61703pt x 440.14973pt.
 
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
@@ -1109,7 +1122,26 @@ See the caption package documentation for explanation.
 
 [7
 
- <./figures/diagram-sequence.png>]) (chapters/04-realisation.tex [8]
+ <./figures/diagram-sequence.png>]
+File: figures/diagram-sequence.png Graphic file (type png)
+<use figures/diagram-sequence.png>
+Package pdftex.def Info: figures/diagram-sequence.png  used on input line 83.
+(pdftex.def)             Requested size: 400.61703pt x 280.38576pt.
+
+
+Package caption Warning: The option `hypcap=true' will be ignored for this
+(caption)                particular \caption on input line 84.
+See the caption package documentation for explanation.
+
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 92.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 92.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 92.
+[8
+
+]) (chapters/04-realisation.tex [9]
 Chapitre 3.
 
 Package hyperref Warning: The anchor of a bookmark and its parent's must not
@@ -1125,9 +1157,9 @@ Underfull \hbox (badness 10000) in paragraph at lines 25--25
 []|\T1/lmr/m/n/10.95 (+20) GitLeaks /
  []
 
-[9
+[10
 
-] [10]
+] [11]
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 7
 0.
  (C:\Users\abass\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd
@@ -1137,9 +1169,8 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-
-[11]
-<figures/login-page.png, id=391, 1442.38875pt x 660.96938pt>
+[12]
+<figures/login-page.png, id=400, 1442.38875pt x 660.96938pt>
 File: figures/login-page.png Graphic file (type png)
 <use figures/login-page.png>
 Package pdftex.def Info: figures/login-page.png  used on input line 114.
@@ -1150,7 +1181,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 114.
 See the caption package documentation for explanation.
 
-<figures/superadmin-dashboard.png, id=393, 1421.31pt x 656.4525pt>
+<figures/superadmin-dashboard.png, id=402, 1421.31pt x 656.4525pt>
 File: figures/superadmin-dashboard.png Graphic file (type png)
 <use figures/superadmin-dashboard.png>
 Package pdftex.def Info: figures/superadmin-dashboard.png  used on input line 1
@@ -1161,10 +1192,10 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 119.
 See the caption package documentation for explanation.
 
-[12
+[13
 
  <./figures/login-page.png> <./figures/superadmin-dashboard.png>]
-<figures/superadmin-projects.png, id=403, 1438.6247pt x 657.95813pt>
+<figures/superadmin-projects.png, id=412, 1438.6247pt x 657.95813pt>
 File: figures/superadmin-projects.png Graphic file (type png)
 <use figures/superadmin-projects.png>
 Package pdftex.def Info: figures/superadmin-projects.png  used on input line 12
@@ -1176,7 +1207,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 123.
 See the caption package documentation for explanation.
 
-<figures/superadmin-team.png, id=405, 1440.13031pt x 657.2053pt>
+<figures/superadmin-team.png, id=414, 1440.13031pt x 657.2053pt>
 File: figures/superadmin-team.png Graphic file (type png)
 <use figures/superadmin-team.png>
 Package pdftex.def Info: figures/superadmin-team.png  used on input line 127.
@@ -1186,7 +1217,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 127.
 See the caption package documentation for explanation.
 
-<figures/superadmin-register-user.png, id=407, 1440.13031pt x 654.19406pt>
+<figures/superadmin-register-user.png, id=416, 1440.13031pt x 654.19406pt>
 File: figures/superadmin-register-user.png Graphic file (type png)
 <use figures/superadmin-register-user.png>
 Package pdftex.def Info: figures/superadmin-register-user.png  used on input li
@@ -1197,8 +1228,8 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 131.
 See the caption package documentation for explanation.
 
-[13 <./figures/superadmin-projects.png> <./figures/superadmin-team.png>]
-<figures/superadmin-new-project-manual.png, id=416, 747.54282pt x 593.96906pt>
+[14 <./figures/superadmin-projects.png> <./figures/superadmin-team.png>]
+<figures/superadmin-new-project-manual.png, id=425, 747.54282pt x 593.96906pt>
 File: figures/superadmin-new-project-manual.png Graphic file (type png)
 <use figures/superadmin-new-project-manual.png>
 Package pdftex.def Info: figures/superadmin-new-project-manual.png  used on inp
@@ -1210,7 +1241,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 133.
 See the caption package documentation for explanation.
 
-<figures/superadmin-new-project-ai.png, id=417, 750.55406pt x 566.86781pt>
+<figures/superadmin-new-project-ai.png, id=426, 750.55406pt x 566.86781pt>
 File: figures/superadmin-new-project-ai.png Graphic file (type png)
 <use figures/superadmin-new-project-ai.png>
 Package pdftex.def Info: figures/superadmin-new-project-ai.png  used on input l
@@ -1221,7 +1252,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 133.
 See the caption package documentation for explanation.
 
-<figures/supervisor-dashboard.png, id=420, 1421.31pt x 658.71094pt>
+<figures/supervisor-dashboard.png, id=429, 1421.31pt x 658.71094pt>
 File: figures/supervisor-dashboard.png Graphic file (type png)
 <use figures/supervisor-dashboard.png>
 Package pdftex.def Info: figures/supervisor-dashboard.png  used on input line 1
@@ -1232,9 +1263,9 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 143.
 See the caption package documentation for explanation.
 
-[14 <./figures/superadmin-register-user.png> <./figures/superadmin-new-project-
+[15 <./figures/superadmin-register-user.png> <./figures/superadmin-new-project-
 manual.png> <./figures/superadmin-new-project-ai.png>]
-<figures/supervisor-project-view.png, id=430, 1440.13031pt x 657.95813pt>
+<figures/supervisor-project-view.png, id=439, 1440.13031pt x 657.95813pt>
 File: figures/supervisor-project-view.png Graphic file (type png)
 <use figures/supervisor-project-view.png>
 Package pdftex.def Info: figures/supervisor-project-view.png  used on input lin
@@ -1246,7 +1277,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 147.
 See the caption package documentation for explanation.
 
-<figures/supervisor-project-kanban.png, id=432, 1429.59094pt x 661.72218pt>
+<figures/supervisor-project-kanban.png, id=441, 1429.59094pt x 661.72218pt>
 File: figures/supervisor-project-kanban.png Graphic file (type png)
 <use figures/supervisor-project-kanban.png>
 Package pdftex.def Info: figures/supervisor-project-kanban.png  used on input l
@@ -1257,9 +1288,9 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 151.
 See the caption package documentation for explanation.
 
-[15 <./figures/supervisor-dashboard.png> <./figures/supervisor-project-view.png
+[16 <./figures/supervisor-dashboard.png> <./figures/supervisor-project-view.png
 >]
-<figures/supervisor-create-task.png, id=441, 1423.56844pt x 660.21657pt>
+<figures/supervisor-create-task.png, id=451, 1423.56844pt x 660.21657pt>
 File: figures/supervisor-create-task.png Graphic file (type png)
 <use figures/supervisor-create-task.png>
 Package pdftex.def Info: figures/supervisor-create-task.png  used on input line
@@ -1271,7 +1302,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 155.
 See the caption package documentation for explanation.
 
-<figures/supervisor-edit-task.png, id=443, 1422.81563pt x 659.46375pt>
+<figures/supervisor-edit-task.png, id=453, 1422.81563pt x 659.46375pt>
 File: figures/supervisor-edit-task.png Graphic file (type png)
 <use figures/supervisor-edit-task.png>
 Package pdftex.def Info: figures/supervisor-edit-task.png  used on input line 1
@@ -1282,9 +1313,9 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 159.
 See the caption package documentation for explanation.
 
-[16 <./figures/supervisor-project-kanban.png> <./figures/supervisor-create-task
+[17 <./figures/supervisor-project-kanban.png> <./figures/supervisor-create-task
 .png>]
-<figures/supervisor-team-directory.png, id=453, 1441.63594pt x 661.72218pt>
+<figures/supervisor-team-directory.png, id=462, 1441.63594pt x 661.72218pt>
 File: figures/supervisor-team-directory.png Graphic file (type png)
 <use figures/supervisor-team-directory.png>
 Package pdftex.def Info: figures/supervisor-team-directory.png  used on input l
@@ -1296,9 +1327,9 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 163.
 See the caption package documentation for explanation.
 
-[17 <./figures/supervisor-edit-task.png> <./figures/supervisor-team-directory.p
+[18 <./figures/supervisor-edit-task.png> <./figures/supervisor-team-directory.p
 ng>]
-<figures/intern-dashboard.png, id=462, 1422.0628pt x 659.46375pt>
+<figures/intern-dashboard.png, id=471, 1422.0628pt x 659.46375pt>
 File: figures/intern-dashboard.png Graphic file (type png)
 <use figures/intern-dashboard.png>
 Package pdftex.def Info: figures/intern-dashboard.png  used on input line 170.
@@ -1309,7 +1340,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 170.
 See the caption package documentation for explanation.
 
-<figures/intern-kanban.png, id=464, 1424.32124pt x 663.22781pt>
+<figures/intern-kanban.png, id=473, 1424.32124pt x 663.22781pt>
 File: figures/intern-kanban.png Graphic file (type png)
 <use figures/intern-kanban.png>
 Package pdftex.def Info: figures/intern-kanban.png  used on input line 174.
@@ -1319,7 +1350,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 174.
 See the caption package documentation for explanation.
 
-<figures/intern-task-discussion.png, id=466, 643.6547pt x 647.41875pt>
+<figures/intern-task-discussion.png, id=475, 643.6547pt x 647.41875pt>
 File: figures/intern-task-discussion.png Graphic file (type png)
 <use figures/intern-task-discussion.png>
 Package pdftex.def Info: figures/intern-task-discussion.png  used on input line
@@ -1330,28 +1361,17 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 178.
 See the caption package documentation for explanation.
 
-[18 <./figures/intern-dashboard.png> <./figures/intern-kanban.png>])
-(chapters/conclusion.tex [19 <./figures/intern-task-discussion.png>]
+[19 <./figures/intern-dashboard.png> <./figures/intern-kanban.png>])
+(chapters/conclusion.tex [20 <./figures/intern-task-discussion.png>]
 Chapitre 4.
-) [20
+) [21
 
 ]
-Overfull \hbox (26.72086pt too wide) in paragraph at lines 133--134
+Overfull \hbox (26.72086pt too wide) in paragraph at lines 158--159
 []\T1/lmr/m/n/10.95 (-20) OWASP Dependency-Check, [][]$\T1/lmtt/m/n/10.95 https
  : / / owasp . org / www-[]project-[]dependency-[]check/$[][]\T1/lmr/m/n/10.95 
 (-20) . Consulté
  []
-
-[21
-
-]
-Annexe A.
-
-Package fancyhdr Warning: \headheight is too small (22.0pt): 
-(fancyhdr)                Make it at least 22.805pt, for example:
-(fancyhdr)                \setlength{\headheight}{22.805pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-0.805pt}.
 
 [22
 
@@ -1362,15 +1382,19 @@ enddocument/afterlastpage (AED): lastpage setting LastPage.
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-07-20>
  ***********
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 20455FE9BFA6EB318AB236546A3BFFC4;6228.
+(rerunfilecheck)             Checksum: 26F0DBABD256D555A6BF4B27AB0782D2;5989.
  ) 
 Here is how much of TeX's memory you used:
- 28238 strings out of 467501
- 542744 string characters out of 5408550
- 989041 words of memory out of 5000000
- 56752 multiletter control sequences out of 15000+600000
- 695674 words of font info for 153 fonts, out of 8000000 for 9000
+ 28341 strings out of 467501
+ 544697 string characters out of 5408550
+ 989416 words of memory out of 5000000
+ 56824 multiletter control sequences out of 15000+600000
+ 721597 words of font info for 176 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  92i,13n,94p,1003b,837s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/abass/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pf
@@ -1381,11 +1405,11 @@ pfb><C:/Users/abass/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.p
 fb><C:/Users/abass/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pf
 b><C:/Users/abass/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb>
 <C:/Users/abass/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri10.pfb>
-<C:/Users/abass/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb>
-
-Output written on main.pdf (31 pages, 2652760 bytes).
+<C:/Users/abass/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri7.pfb><
+C:/Users/abass/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb>
+Output written on main.pdf (31 pages, 2668964 bytes).
 PDF statistics:
- 579 PDF objects out of 1000 (max. 8388607)
- 112 named destinations out of 1000 (max. 500000)
- 37820 words of extra memory for PDF output out of 42996 (max. 10000000)
+ 588 PDF objects out of 1000 (max. 8388607)
+ 111 named destinations out of 1000 (max. 500000)
+ 54208 words of extra memory for PDF output out of 61914 (max. 10000000)
 

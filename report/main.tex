@@ -28,37 +28,57 @@
 \definecolor{ramblue}{HTML}{003B71}
 \definecolor{ramred}{HTML}{C8102E}
 \definecolor{lightblue}{HTML}{EAF2F8}
-\hypersetup{colorlinks=true,linkcolor=ramblue,urlcolor=ramblue,citecolor=ramblue,pdftitle={Plateforme de gestion des projets de stage}}
+\definecolor{ramnavy}{HTML}{002B52}
+\definecolor{ramgold}{HTML}{D6A84B}
+\definecolor{rampale}{HTML}{F4F8FB}
+\definecolor{ink}{HTML}{202A33}
+\definecolor{accent}{HTML}{3E6B6B}
+\definecolor{softgray}{HTML}{F3F4F2}
+\definecolor{muted}{HTML}{6C747A}
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=accent,citecolor=accent,pdftitle={Plateforme de gestion des projets de stage}}
 \setlist[itemize]{noitemsep,topsep=4pt}
 \setstretch{1.15}
 \setlength{\parskip}{7pt}
 \setlength{\parindent}{0pt}
 \renewcommand{\arraystretch}{1.15}
-\titleformat{\chapter}[display]{\bfseries\color{ramblue}\Huge}{\chaptername\ \thechapter}{10pt}{\Huge}
-\titleformat{\section}{\Large\bfseries\color{ramblue}}{\thesection}{0.7em}{}
+\captionsetup{labelfont={bf,color=accent},textfont=it,font=small}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\color{ink}\Huge}
+  {\large\color{accent}\MakeUppercase{\chaptername}\ \thechapter}
+  {0.38cm}
+  {\filright}
+  [\vspace{0.38cm}\color{accent}\titlerule]
+\titleformat{name=\chapter,numberless}[display]
+  {\normalfont\bfseries\color{ink}\Huge}{}{0pt}{\filright}
+  [\vspace{0.38cm}\color{accent}\titlerule]
+\titlespacing*{\chapter}{0pt}{-6pt}{28pt}
+\titleformat{\section}{\Large\bfseries\color{ink}}{\color{accent}\thesection}{0.7em}{}
+\titlespacing*{\section}{0pt}{21pt}{9pt}
+\titleformat{\subsection}{\large\bfseries\color{accent}}{\thesubsection}{0.7em}{}
+\titlespacing*{\subsection}{0pt}{16pt}{7pt}
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\chaptermark}[1]{\markboth{Chapitre \thechapter\ -- #1}{}}
-\fancyhead[L]{\small\nouppercase{\leftmark}}
-\fancyhead[R]{\small\textbf{Royal Air Maroc (RAM)}}
-\cfoot{\small \thepage~/~\pageref{LastPage}}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\headrule}{\hbox to\headwidth{\color{ramblue}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[L]{\small\color{muted}\nouppercase{\leftmark}}
+\fancyhead[R]{\small\bfseries\color{ink}Royal Air Maroc}
+\cfoot{\small\color{muted}\thepage\ \textcolor{accent}{·}\ \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.35pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{muted}\leaders\hrule height \headrulewidth\hfill\color{accent}\rule{1.15cm}{\headrulewidth}}}
 \fancypagestyle{plain}{%
   \fancyhf{}%
-  \fancyhead[L]{\small\nouppercase{\leftmark}}%
-  \fancyhead[R]{\small\textbf{Royal Air Maroc (RAM)}}%
-  \cfoot{\small \thepage~/~\pageref{LastPage}}%
-  \renewcommand{\headrulewidth}{0.4pt}%
+  \fancyhead[L]{\small\color{muted}\nouppercase{\leftmark}}%
+  \fancyhead[R]{\small\bfseries\color{ink}Royal Air Maroc}%
+  \cfoot{\small\color{muted}\thepage\ \textcolor{accent}{·}\ \pageref{LastPage}}%
+  \renewcommand{\headrulewidth}{0.35pt}%
 }
 
 \newcommand{\placeholder}[1]{\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering\textit{#1}}}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
-\setlength{\headheight}{22pt}
+\setlength{\headheight}{23pt}
 \begin{document}
 \begin{titlepage}
 \centering
-\vspace*{0.8cm}
+\vspace*{0.7cm}
 \begin{minipage}[c]{0.42\textwidth}
 \centering
 \includegraphics[height=1.55cm]{logo-emsi-entry.png}
@@ -66,26 +86,31 @@
 \begin{minipage}[c]{0.32\textwidth}
 \centering
 \includegraphics[height=1.7cm,trim=60bp 130bp 50bp 190bp,clip]{ram-logo.png}
-\end{minipage}\\[0.65cm]
+\end{minipage}\\[0.75cm]
 {\Large\bfseries École Marocaine des Sciences de l'Ingénieur}\\[0.18cm]
-{\large\color{ramblue} Filière Ingénierie Informatique et Réseaux (IIR)}\\[1.05cm]
-{\color{ramblue}\rule{0.88\textwidth}{1.4pt}}\\[0.42cm]
-{\large\bfseries\color{ramred} RAPPORT DE STAGE}\\[0.38cm]
-{\Huge\bfseries\color{ramblue} Conception et développement}\\[0.3cm]
-\parbox{0.88\textwidth}{\centering\Large\bfseries d'une plateforme de gestion des projets de stage\\pour Royal Air Maroc}\\[0.6cm]
-{\color{ramred}\rule{0.88\textwidth}{1.4pt}}\\[1.05cm]
-\begin{minipage}[t]{0.44\textwidth}
-\raggedright\textbf{Réalisé par}\\[0.12cm]
+{\large\color{accent} Filière Ingénierie Informatique et Réseaux (IIR)}\\[0.85cm]
+{\color{muted}\rule{0.82\textwidth}{0.45pt}}\\[1.05cm]
+{\large\scshape\color{accent} Rapport de stage}\\[0.48cm]
+\begin{minipage}{0.88\textwidth}
+\centering
+{\fontsize{25}{31}\selectfont\bfseries\color{ink} Conception et développement}\\[0.38cm]
+{\Large\bfseries d'une plateforme de gestion des projets de stage}\\[0.38cm]
+{\large\color{accent} Projet réalisé pour Royal Air Maroc}
+\end{minipage}
+\vfill
+\colorbox{softgray}{\begin{minipage}{0.84\textwidth}\vspace{0.28cm}
+\begin{minipage}[t]{0.47\textwidth}
+\raggedright\textcolor{accent}{\textbf{Réalisé par}}\\[0.12cm]
 {\large Abbassid Mouad}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.44\textwidth}
-\raggedleft\textbf{Encadrante académique}\\[0.12cm]
+\begin{minipage}[t]{0.47\textwidth}
+\raggedleft\textcolor{accent}{\textbf{Encadrante académique}}\\[0.12cm]
 Melaouene Noussaiba
-\end{minipage}\\[1.15cm]
-{\large\textbf{Organisme d'accueil :} Royal Air Maroc (RAM)}\\[0.18cm]
-{\large\textbf{Département :} Digital Factory}\\[0.18cm]
-{\large\textbf{Période :} du 1\textsuperscript{er} juillet au 15 septembre 2026}\\[0.78cm]
-{\large Année universitaire 2025--2026}
+\end{minipage}\\[0.42cm]
+\centering\textbf{Organisme d'accueil :} Royal Air Maroc (RAM)\\[0.12cm]
+\textbf{Période :} du 1\textsuperscript{er} juillet au 15 septembre 2026
+\vspace{0.28cm}\end{minipage}}\\[0.7cm]
+{\large\color{muted} Année universitaire 2025--2026}
 \vfill
 \end{titlepage}
 
@@ -131,18 +156,7 @@ This report presents the design and development of an \textbf{internship project
   \item Jenkins User Documentation, \url{https://www.jenkins.io/doc/}. Consulté le 20 août 2026.
   \item SonarQube Documentation, \url{https://docs.sonarsource.com/sonarqube/}. Consulté le 20 août 2026.
   \item OWASP Dependency-Check, \url{https://owasp.org/www-project-dependency-check/}. Consulté le 20 août 2026.
-  \item Trivy Documentation, \url{https://aquasecurity.github.io/trivy/}. Consulté le 20 août 2026.
-  \item 
+  \item Trivy Documentation, \url{https://aquasecurity.github.io/trivy/}. Consulté le 20 août 2026. 
 \end{enumerate}
-
-\appendix
-\chapter{Éléments à compléter avant la soutenance}
-\begin{itemize}
-  \item Ajouter les logos de l'établissement et de la Royal Air Maroc sur la page de garde, si autorisés.
-  \item Remplacer tous les champs entre crochets par les informations définitives.
-  \item Insérer des captures d'écran réelles dans le chapitre \ref{chap-realisation}.
-  \item Mettre à jour le planning si les dates effectives diffèrent du prévisionnel.
-  \item Vérifier avec l'encadrant les règles de confidentialité avant toute insertion de données internes.
-\end{itemize}
 
 \end{document}
