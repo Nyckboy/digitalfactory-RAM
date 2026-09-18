@@ -111,7 +111,7 @@ export const Login = () => {
           </div>
 
           <div className="flex gap-6 items-center mt-auto text-secondary text-xs font-semibold">
-            <span>© 2024 Digital Factory</span>
+            <span>© 2026 Digital Factory</span>
             <a className="hover:text-primary transition-colors" href="#">
               Privacy Policy
             </a>
