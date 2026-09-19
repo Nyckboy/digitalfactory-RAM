@@ -219,4 +219,26 @@ Set frontend API and WebSocket URLs before building. The included Nginx configur
 
 The [Jenkins pipeline](Jenkinsfile) includes build/test stages, Gitleaks, dependency scans, SonarQube, Docker image builds, Trivy scans, and deployment. It references environment-specific tool installations, credentials, network settings, and addresses that must be adapted for another deployment.
 
+### Start and stop the app from Jenkins
+
+The pipeline has an `ACTION` selector in **Build with Parameters**:
+
+| Action | Result |
+| --- | --- |
+| `DEPLOY` (default) | Run the build, tests, scans, and deployment; replace the application containers with the new release. |
+| `STOP` | Stop the existing frontend and backend containers, preserving their configuration and the database. |
+| `START` | Restart those existing containers using the previously deployed images and configuration. |
+
+After pushing this Jenkinsfile, let Jenkins load it in one build so it registers the parameter. This first run defaults to `DEPLOY` and may redeploy the app. Then open the branch job (for example, `main`), select **Build with Parameters**, choose `STOP` or `START`, and click **Build**.
+
+Start and Stop check out the control script but skip compilation, tests, scans, deployment credentials, image builds, and image pruning. Both containers must already exist; if either is missing, the action fails before changing the other. The pipeline checks the running state of each container after the operation, not application HTTP readiness. A failed Docker operation is reported as a failed build and may leave a partial state; inspect the console output before retrying.
+
+The Jenkins agent must use the **same Docker host as deployment**. The current `agent any` assumes a single suitable agent; if Jenkins has several agents, pin this pipeline to the deployment agent's label. Builds of this job are serialized, so a Stop request waits for an active deployment to finish. This does not serialize other branch jobs or other pipelines targeting the same containers.
+
+Stopping the app does not disable automatic deployments. A later push or scheduled `DEPLOY` can bring it online again. Disable those triggers/job while it should stay offline, or keep deployment manual.
+
+The container names are centralized as `APP_BACKEND_CONTAINER` and `APP_FRONTEND_CONTAINER` in [Jenkinsfile](Jenkinsfile). The reusable [control script](ci/app-lifecycle.sh) accepts both names explicitly. When creating the demo, use a separate job and distinct container names, image tags, ports, and network/proxy configuration so its controls target only the demo. In particular, update the frontend Nginx backend hostname if renaming the backend container.
+
+Run the control-script tests without a Docker daemon using `python -m unittest discover -s ci -p "test_*.py"`. They require a POSIX shell; on Windows set `LIFECYCLE_TEST_SHELL` to your Git Bash executable path.
+
 This repository currently contains the full application. A restricted portfolio demo is not implemented yet.
